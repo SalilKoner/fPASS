@@ -34,7 +34,9 @@ solve for power if target.power is NULL.}
 \item{sigma2}{The common variance of the observations. Only implementing common variance across all measurement points.}
 
 \item{cor.str}{The correlation structure between the observations. It must be provided in the form specified in the
-available in the documentation of nlme R package. Check the package documentation for more details.}
+available in the documentation of nlme R package. Check the package documentation for more details.
+The argument of this function is passed onto the \code{\link[nlme:corMatrix]{nlme::corMatrix()}} to extract the subject-specific
+covariance matrix.}
 
 \item{sigma2.e}{Measurement error variance, should be left as NULL if there is no measurement error.}
 
@@ -45,7 +47,19 @@ If target.SS is null, it returns the optimal sample size required for specified 
 Otherwise returns the empirical power for the sample size specified by target.SS.
 }
 \description{
-Computes the power and sample size required for different covariance structure of the data.
+This function `PASS_UfPCA()`` computes the power and sample size required to conduct
+the projection-based test of mean function between two groups of longitudinal data
+or sparsely observed functional data under a random irregular design, under
+different covariance structure of the data.
+}
+\details{
+The projection-based test assumes the two groups of the data share the identical
+covariance structure. The projection-based test represents the sparsely observed
+functions parsimoniously in terms of Kahrunen-Loeve (KL) expansion and use the
+functional principal component analysis scores to test the difference in the mean
+function between two groups, by taking advantage of multivariate Hotelling-$T^2$ test.
+See the EJS paper by Qiao Wang for more details of the testing procedure. We use the \code{FPCA()}
+function in the R package \code{fdapace} to conduct the functional principal component analysis.
 }
 \examples{
 set.seed(12345)

@@ -15,5 +15,7 @@ Imports:
     face,
     fdapace,
     Hotelling,
+    MASS,
     Matrix,
+    nlme,
     refund

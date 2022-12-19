@@ -1,16 +1,26 @@
 #' Power and Sample size calculation of
 #' Projection-based test for difference between mean function of
 #' two groups.
-#'
-#' Computes the power and sample size required for different covariance structure of the data.
+#' @description This function `PASS_UfPCA()`` computes the power and sample size required to conduct
+#' the projection-based test of mean function between two groups of longitudinal data
+#' or sparsely observed functional data under a random irregular design, under
+#' different covariance structure of the data.
+#' @details The projection-based test assumes the two groups of the data share the identical
+#' covariance structure. The projection-based test represents the sparsely observed
+#' functions parsimoniously in terms of Kahrunen-Loeve (KL) expansion and use the
+#' functional principal component analysis scores to test the difference in the mean
+#' function between two groups, by taking advantage of multivariate Hotelling-$T^2$ test.
+#' See the EJS paper by Qiao Wang for more details of the testing procedure. We use the `FPCA()`
+#' function in the R package `fdapace` to conduct the functional principal component analysis.
 #' @author Salil Koner \cr Maintainer: Salil Koner
 #' \email{salil.koner@@duke.edu}
 #' @import Matrix
-#' @import tidyverse
+#' @import dplyr
 #' @import fdapace
 #' @import refund
 #' @import face
 #' @import nlme
+#' @import MASS
 #' @param target.SS Target sample size, must be a positive interger more than 3.
 #' @param target.power Target power, must be a number between 0 and 1.
 #'                     Only one of target.SS and target.power should be non-null. The
@@ -21,6 +31,8 @@
 #' @param sigma2 The common variance of the observations. Only implementing common variance across all measurement points.
 #' @param cor.str The correlation structure between the observations. It must be provided in the form specified in the
 #'                available in the documentation of nlme R package. Check the package documentation for more details.
+#'                The argument of this function is passed onto the [nlme::corMatrix()] to extract the subject-specific
+#'                covariance matrix.
 #' @param sigma2.e Measurement error variance, should be left as NULL if there is no measurement error.
 #' @param nobs_per_subj The number of observations per subject. Must be a positive integer greater than 3.
 #' @return If target.SS is null, it returns the optimal sample size required for specified target.power.
@@ -72,8 +84,6 @@ PASS_UfPCA <- function(target.SS, target.power, alpha.fix,
     m            <- rep(nobs, n.big)
   }
 
-  if (missing_percent)
-
   tind           <- lapply(1:n.big, function(i) sort(sample(1:N, m[i], replace = FALSE)) )
   tvals          <- lapply(1:n.big, function(i) tgrid[tind[[i]]] )
   g              <- sample(1:2, n.big, replace = TRUE)
@@ -82,8 +92,8 @@ PASS_UfPCA <- function(target.SS, target.power, alpha.fix,
                                "time" = unlist(tvals)) %>%
                     mutate(Subject = factor(id))
   cs1Exp         <- cor.str
-  cs1Exp         <- Initialize(cs1Exp, sim.dat)
-  cor.mat        <- corMatrix(cs1Exp)
+  cs1Exp         <- nlme::Initialize(cs1Exp, sim.dat)
+  cor.mat        <- nlme::corMatrix(cs1Exp)
 
   Xlist          <- lapply(1:n.big, function(i) MASS::mvrnorm(n=1, mu=rep(0, m[i]),
                                                     Sigma = sigma2*cor.mat[[i]]) )
@@ -91,7 +101,7 @@ PASS_UfPCA <- function(target.SS, target.power, alpha.fix,
   Ylist          <- lapply(1:n.big, function(i) Xlist[[i]] +
                              rnorm(m[i], mean = 0, sd = sqrt(sigma2.err)))
 
-  fpcObj         <- FPCA(Ly = Ylist, Lt = tvals, list(dataType = "Sparse",
+  fpcObj         <- fdapace::FPCA(Ly = Ylist, Lt = tvals, list(dataType = "Sparse",
                           userMu = list(t = tgrid, mu = rep(0, length(tgrid))),
                                         nRegGrid = 101, FVEthreshold = 0.95,
                                         methodSelectK = "FVE"))
