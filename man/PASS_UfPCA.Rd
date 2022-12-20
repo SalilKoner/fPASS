@@ -34,20 +34,25 @@ solve for power if target.power is NULL.}
 \item{sigma2}{The common variance of the observations. Only implementing common variance across all measurement points.}
 
 \item{cor.str}{The correlation structure between the observations. It must be provided in the form specified in the
-available in the documentation of nlme R package. Check the package documentation for more details.
+available in the documentation of R package \pkg{nlme}. Check the package documentation for more details.
 The argument of this function is passed onto the \code{\link[nlme:corMatrix]{nlme::corMatrix()}} to extract the subject-specific
 covariance matrix.}
 
 \item{sigma2.e}{Measurement error variance, should be left as NULL if there is no measurement error.}
 
 \item{nobs_per_subj}{The number of observations per subject. Must be a positive integer greater than 3.}
+
+\item{missing_type}{The type pf missing in the number of observations of the subjects.
+Only supports \code{missing_type = "constant"} now.}
+
+\item{missing_percent}{The percentage of missing at each observation points for each subject.}
 }
 \value{
 If target.SS is null, it returns the optimal sample size required for specified target.power.
 Otherwise returns the empirical power for the sample size specified by target.SS.
 }
 \description{
-This function `PASS_UfPCA()`` computes the power and sample size required to conduct
+This function \code{PASS_UfPCA()} computes the power and sample size required to conduct
 the projection-based test of mean function between two groups of longitudinal data
 or sparsely observed functional data under a random irregular design, under
 different covariance structure of the data.
@@ -55,18 +60,28 @@ different covariance structure of the data.
 \details{
 The projection-based test assumes the two groups of the data share the identical
 covariance structure. The projection-based test represents the sparsely observed
-functions parsimoniously in terms of Kahrunen-Loeve (KL) expansion and use the
+functions parsimoniously in terms of Karhunen-Loeve (KL) expansion and use the
 functional principal component analysis scores to test the difference in the mean
-function between two groups, by taking advantage of multivariate Hotelling-$T^2$ test.
-See the EJS paper by Qiao Wang for more details of the testing procedure. We use the \code{FPCA()}
+function between two groups, by taking advantage of multivariate Hotelling-\eqn{T^2} test.
+See Wang (2021) for more details of the testing procedure. We use the \code{FPCA()}
 function in the R package \code{fdapace} to conduct the functional principal component analysis.
 }
 \examples{
 set.seed(12345)
 target.SS <- NULL; target.power <- 0.8; alpha.fix <- 0.05; mean.diff <- function(t) {t};
-cor.str <- corExp(1, form = ~ time | Subject); sigma2 <- 1; sigma2.e <- 0.25; nobs <- 8;
-Sample_size <- PASS_UfPCA(target.SS, target.power, alpha.fix, mean.diff, sigma2, cor.str, sigma2.e, nobs)
+cor.str <- nlme::corExp(1, form = ~ time | Subject);
+sigma2 <- 1; sigma2.e <- 0.25; nobs_per_subj <- 8;
+\dontrun{
+Sample_size <- PASS_UfPCA(target.SS, target.power,
+alpha.fix, mean.diff, sigma2, cor.str, sigma2.e, nobs_per_subj)
+}
 
+}
+\references{
+Wang, Qiyao (2021)
+\emph{Two-sample inference for sparse functional data,  Electronic Journal of Statistics,
+Vol. 15, 1395-1423} \cr
+\doi{https://doi.org/10.1214/21-EJS1802}.
 }
 \author{
 Salil Koner \cr Maintainer: Salil Koner

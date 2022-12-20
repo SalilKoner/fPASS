@@ -1,0 +1,19 @@
+---
+title: "fPASS"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{fPASS}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(fPASS)
+```

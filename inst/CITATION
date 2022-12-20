@@ -1,0 +1,16 @@
+citHeader("To cite fPASS in publications use:")
+
+citEntry(
+  entry    = "Unpublished",
+  title    = "Power and Sample Size for Projection-based Two-Sample testing for Functional Data",
+  author   = "Salil Koner",
+  year     = 2022,
+  note     = "To be published soon",
+  textVersion = paste(
+      "Koner, S. (2022) ",
+               "fPASS: Power and Samle Size Calculation for Projection-based testing of Functional Data, ",
+               "Duke University, Durham, NC, USA ",
+                "https://CRAN.R-project.org/package=fPASS",
+                " Version = 1.0.1",".",sep=""
+  )
+)

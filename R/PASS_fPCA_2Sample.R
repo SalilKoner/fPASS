@@ -1,16 +1,16 @@
 #' Power and Sample size calculation of
 #' Projection-based test for difference between mean function of
 #' two groups.
-#' @description This function `PASS_UfPCA()`` computes the power and sample size required to conduct
+#' @description This function `PASS_UfPCA()` computes the power and sample size required to conduct
 #' the projection-based test of mean function between two groups of longitudinal data
 #' or sparsely observed functional data under a random irregular design, under
 #' different covariance structure of the data.
 #' @details The projection-based test assumes the two groups of the data share the identical
 #' covariance structure. The projection-based test represents the sparsely observed
-#' functions parsimoniously in terms of Kahrunen-Loeve (KL) expansion and use the
+#' functions parsimoniously in terms of Karhunen-Loeve (KL) expansion and use the
 #' functional principal component analysis scores to test the difference in the mean
-#' function between two groups, by taking advantage of multivariate Hotelling-$T^2$ test.
-#' See the EJS paper by Qiao Wang for more details of the testing procedure. We use the `FPCA()`
+#' function between two groups, by taking advantage of multivariate Hotelling-\eqn{T^2} test.
+#' See Wang (2021) for more details of the testing procedure. We use the `FPCA()`
 #' function in the R package `fdapace` to conduct the functional principal component analysis.
 #' @author Salil Koner \cr Maintainer: Salil Koner
 #' \email{salil.koner@@duke.edu}
@@ -19,8 +19,9 @@
 #' @import fdapace
 #' @import refund
 #' @import face
-#' @import nlme
-#' @import MASS
+#' @importFrom nlme corMatrix Initialize
+#' @importFrom MASS mvrnorm
+#' @importFrom stats cov rnorm uniroot
 #' @param target.SS Target sample size, must be a positive interger more than 3.
 #' @param target.power Target power, must be a number between 0 and 1.
 #'                     Only one of target.SS and target.power should be non-null. The
@@ -30,27 +31,35 @@
 #' @param mean.diff The difference in the mean function between the two groups. Must be supplied as a function class.
 #' @param sigma2 The common variance of the observations. Only implementing common variance across all measurement points.
 #' @param cor.str The correlation structure between the observations. It must be provided in the form specified in the
-#'                available in the documentation of nlme R package. Check the package documentation for more details.
+#'                available in the documentation of R package \pkg{nlme}. Check the package documentation for more details.
 #'                The argument of this function is passed onto the [nlme::corMatrix()] to extract the subject-specific
 #'                covariance matrix.
 #' @param sigma2.e Measurement error variance, should be left as NULL if there is no measurement error.
 #' @param nobs_per_subj The number of observations per subject. Must be a positive integer greater than 3.
+#' @param missing_type The type pf missing in the number of observations of the subjects.
+#' Only supports \code{missing_type = "constant"} now.
+#' @param missing_percent The percentage of missing at each observation points for each subject.
 #' @return If target.SS is null, it returns the optimal sample size required for specified target.power.
 #'         Otherwise returns the empirical power for the sample size specified by target.SS.
-#' @export
 #' @examples
 #' set.seed(12345)
 #' target.SS <- NULL; target.power <- 0.8; alpha.fix <- 0.05; mean.diff <- function(t) {t};
-#' cor.str <- corExp(1, form = ~ time | Subject); sigma2 <- 1; sigma2.e <- 0.25; nobs <- 8;
-#' Sample_size <- PASS_UfPCA(target.SS, target.power, alpha.fix, mean.diff, sigma2, cor.str, sigma2.e, nobs)
+#' cor.str <- nlme::corExp(1, form = ~ time | Subject);
+#' sigma2 <- 1; sigma2.e <- 0.25; nobs_per_subj <- 8;
+#' \dontrun{
+#' Sample_size <- PASS_UfPCA(target.SS, target.power,
+#' alpha.fix, mean.diff, sigma2, cor.str, sigma2.e, nobs_per_subj)
+#' }
 #'
+#' @export
+#' @references Wang, Qiyao (2021)
+#' \emph{Two-sample inference for sparse functional data,  Electronic Journal of Statistics,
+#' Vol. 15, 1395-1423} \cr
+#' \doi{https://doi.org/10.1214/21-EJS1802}.
 PASS_UfPCA <- function(target.SS, target.power, alpha.fix,
                        mean.diff, sigma2, cor.str, sigma2.e,
                        nobs_per_subj, missing_type = "constant",
                        missing_percent = NULL){
-
-  require(tidyverse)
-  require(fdapace)
 
   stopifnot("Only one of target.SS or target.power should be NULL" =
             xor(!is.null(target.SS), !is.null(target.power)),
@@ -60,7 +69,8 @@ PASS_UfPCA <- function(target.SS, target.power, alpha.fix,
              all(nobs_per_subj == floor(nobs_per_subj)) )
 
   if (length(nobs_per_subj) > 1){
-    stopifnot("Number of observations per subject varies, so missing percent must be null" =
+    stopifnot("Number of observations per subject varies,
+              so missing percent must be null" =
               is.null(missing_percent))
   }
 
@@ -69,19 +79,18 @@ PASS_UfPCA <- function(target.SS, target.power, alpha.fix,
                 ((missing_percent >= 0) & (missing_percent < 90)) )
   }
 
-
-
   sigma2.err     <- ifelse(is.null(sigma2.e), 0, sigma2.e)
   n.big          <- 1e3
   N              <- 101
   tgrid          <- seq(0,1,length.out = N)
 
-  if (length(nobs) > 1){
-    cat("nobs is a vector: number of measurements for the subjects will be taken randomly between",
-                            range(obs)[1], "and", range(nobs)[2], "\n")
-    m            <- sample(nobs, n.big, replace = TRUE)
+  if (length(nobs_per_subj) > 1){
+    cat("nobs_per_subj is a vector: number of measurements
+        for the subjects will be taken randomly between",
+                            range(nobs_per_subj)[1], "and", range(nobs_per_subj)[2], "\n")
+    m            <- sample(nobs_per_subj, n.big, replace = TRUE)
   } else {
-    m            <- rep(nobs, n.big)
+    m            <- rep(nobs_per_subj, n.big)
   }
 
   tind           <- lapply(1:n.big, function(i) sort(sample(1:N, m[i], replace = FALSE)) )
@@ -102,7 +111,7 @@ PASS_UfPCA <- function(target.SS, target.power, alpha.fix,
                              rnorm(m[i], mean = 0, sd = sqrt(sigma2.err)))
 
   fpcObj         <- fdapace::FPCA(Ly = Ylist, Lt = tvals, list(dataType = "Sparse",
-                          userMu = list(t = tgrid, mu = rep(0, length(tgrid))),
+                                  userMu = list(t = tgrid, mu = rep(0, length(tgrid))),
                                         nRegGrid = 101, FVEthreshold = 0.95,
                                         methodSelectK = "FVE"))
 
