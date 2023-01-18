@@ -21,9 +21,9 @@ Imports:
     MASS,
     Matrix,
     nlme,
-    refund
+    refund,
+    testthat
 Suggests: 
     knitr,
-    rmarkdown,
-    testthat
+    rmarkdown
 VignetteBuilder: knitr
