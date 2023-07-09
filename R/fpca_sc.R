@@ -5,7 +5,6 @@
 #' @param method quadrature method. Can be either \code{trapedoidal} or \code{midpoint}.
 #' @return a vector of quadrature weights for the points supplied in \code{argvals}.
 #' @author Clara Happ, with modifications by Philip Reiss
-#' @name refund-fpca-score-corrected
 #' @keywords internal
 #' @noRd
 
@@ -174,12 +173,11 @@ quadWeights<- function(argvals, method = "trapezoidal")
 ##'
 ##' }
 #' @keywords internal
-#' @name refund-fpca-score-corrected
 #' @importFrom Matrix nearPD Matrix t as.matrix
 #' @importFrom mgcv gam predict.gam
 #' @importFrom gamm4 gamm4
 #' @importFrom stats complete.cases predict rchisq weighted.mean pf qf
-#' @rdname fpca_sc
+#' @rdname fpca
 #' @export
 fpca.sc <- function(Y = NULL, ydata = NULL, Y.pred = NULL, argvals = NULL, random.int = FALSE,
                     nbasis = 10, pve = 0.95, npc = NULL,
