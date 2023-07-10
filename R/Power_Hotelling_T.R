@@ -1,10 +1,10 @@
-#' Distribution of the Hotelling-\eqn{T^2} statistic under unequal covariance.
+#' Samples from the non-null distribution of the Hotelling-\eqn{T^2} statistic under unequal covariance.
 #'
 #' @description
 #' `r lifecycle::badge("experimental")`
 #'
 #' @description
-#' The function `Sim_HotellingT_unequal_var()` generates samples from the
+#' The function \code{Sim_HotellingT_unequal_var()} generates samples from the
 #' (non-null) distribution of the two-sample Hotelling-\eqn{T^2} statistic
 #' under the assuming of unequal covariance of the multivariate response
 #' between the two groups. This function is used to compute the power function
@@ -33,28 +33,30 @@
 #' @importFrom testthat expect_true expect_gte expect_no_error
 #' @importFrom stats cov rnorm complete.cases predict rchisq weighted.mean pf qf
 #' @importFrom expm sqrtm
-#' @name Power-Hotelling-T-Test
-#' @param total_sample_size Target sample size, must be a positive integer more than 10
+#' @param total_sample_size Target sample size, must be a positive integer.
 #' @param mean_diff The difference in the mean vector between the two groups, must be a vector.
 #' @param sig1 The true (or estimate) of covariance matrix for the first group. Must be symmetric
-#' (\code{is.symmetric(sig1) == TRUE}) and positive definite (chol(sig1) without an error!).
+#' (\code{is.symmetric(sig1) == TRUE}) and positive definite (\code{chol(sig1)} without an error!).
 #' @param sig2 The true (or estimate) of covariance matrix for the second group. Must be symmetric
-#' (\code{is.symmetric(sig2) == TRUE}) and positive definite (chol(sig2) without an error!).
+#' (\code{is.symmetric(sig2) == TRUE}) and positive definite (\code{chol(sig2)} without an error!).
 #' @param alloc.ratio Allocation of total sample size into the two groups. Must set as a vector of two
 #'                    positive numbers. For equal allocation it should be put as c(1,1), for non-equal
 #'                    allocation one can put c(2,1) or c(3,1) etc.
 #' @param nsim The number of samples to be generated from the alternate distribution.
-#' @return A named list with two elements, named as \code{samples} and \code{denom.df}.
-#'
-#' \code{samples}: a vector of length \code{nsim} containing the samples.
-#' \code{denom.df}: The approximate denominator degrees of freedom involved in the non-null distribution.
+#' @return A named list with two elements.
+#' \enumerate{
+#' \item \code{samples} - a vector of length \code{nsim}, containing
+#' The samples from the distribution of the Hotelling T statistic
+#' under unequal variance.
+#' \item \code{denom.df} - The denominator degrees of freedom of the chi-square statistic
+#' obtained by approximation of the sum of two Wishart distribution under unequal variance.
+#' }
 #' @references Wang, Qiyao (2021)
 #' \emph{Two-sample inference for sparse functional data,  Electronic Journal of Statistics,
 #' Vol. 15, 1395-1423} \cr
 #' \doi{https://doi.org/10.1214/21-EJS1802}.
 #' @seealso [Hotelling::hotelling.test()], [Hotelling::hotelling.stat()] to generate empirical samples
 #' from the Hotelling T-statistic from empirical data.
-#' @rdname Power_Hotelling_T
 #' @export
 #' @examples
 #' \dontrun{
@@ -78,10 +80,12 @@
 #' k <- 6
 #' mu1  <- rep(0,k); del  <- 0.15; mu2 <- mu1 + rep(del, k);
 #' sig1 <- diag(k); sig2 <- sig1;
-#' alt.dist.samples <- Sim_HotellingT_unequal_var(total_sample_size=200, mean_diff=mu1-mu2,
-#' sig1=sig1, sig2=sig2, alloc.ratio=c(1,1), nsim=1e3)
-#' ks.test(alt.dist, {(n1+n2 - 2) * k /(n1+n2 - k -1)}*rf(n=B, k, n1+n2-k-1,
-#' ncp = {(n1*n2)/(n1+n2)}*as.vector(crossprod(mu1-mu2, solve(sig1, mu1-mu2))) ) )
+#' n1 <- 100; n2 <- 100;
+#' alt.dist.samples <- Sim_HotellingT_unequal_var(total_sample_size=n1+n2, mean_diff=mu1-mu2,
+#'                                                sig1=sig1, sig2=sig2, alloc.ratio=c(1,1), nsim=1e3)
+#' ks.test(alt.dist.samples$samples,
+#'         {(n1+n2 - 2) * k /(n1+n2 - k -1)}*rf(n=B, k, n1+n2-k-1,
+#'           ncp = {(n1*n2)/(n1+n2)}*as.vector(crossprod(mu1-mu2, solve(sig1, mu1-mu2))) ) )
 #' }
 #' \dontrun{
 #' # Case 3: Alternate hypothesis is true. The mean difference is non-zero,
@@ -124,10 +128,8 @@ Sim_HotellingT_unequal_var <- function(total_sample_size, mean_diff,
   #*                         Compatibility checking of arguments                                %
   #*********************************************************************************************%
   # argument checking : total_sample_size
-  testthat::expect_true(rlang::is_integerish(total_sample_size, n=1, finite=TRUE) & (total_sample_size > 0),
+  testthat::expect_true(rlang::is_double(total_sample_size, n=1, finite=TRUE) & (total_sample_size > 0),
                         info = "total_sample_size must be a positive integer")
-  testthat::expect_gte(total_sample_size, 10,
-                       label = "total_sample_size less than 10 is not practical")
   # argument checking : sig1
   testthat::expect_true(rlang::is_double(sig1, finite=TRUE) & isSymmetric(sig1),
                         info = "sig1 must be a symmetric matrix");
@@ -152,8 +154,6 @@ Sim_HotellingT_unequal_var <- function(total_sample_size, mean_diff,
   #*********************************************************************************************%
   #*                                         Main body                                          %
   #*********************************************************************************************%
-
-  message("Computing asymptotic non-null distribution of Hotelling T under unequal variance\n")
   mean_diff       <- as.vector(mean_diff)
   alloc.ratio     <- as.vector(alloc.ratio)
   B               <- nsim # Simulation replication
@@ -161,14 +161,6 @@ Sim_HotellingT_unequal_var <- function(total_sample_size, mean_diff,
   n1              <- round(total_sample_size * {alloc.ratio[1]/sum(alloc.ratio)})
   n1_by_n2        <- alloc.ratio[1]/alloc.ratio[2]
   n2              <- total_sample_size - n1
-
-  # cat("n1 =", n1, "\n")
-  # cat("n2 =", n2, "\n")
-  # cat("n1_by_n2 =", n1_by_n2, "\n")
-  # cat("sig1 = ", sig1, "\n")
-  # cat("sig2 = ", sig2, "\n")
-  # cat("mu1-mu2 = ", mean_diff, "\n")
-
   sig.str         <- (n1-1)*sig1 + (n2-1)*sig2
   sig.til         <- sig1 + n1_by_n2 * sig2
   sqinv.sig.til   <- expm::sqrtm(solve(sig.til))
@@ -204,7 +196,7 @@ Sim_HotellingT_unequal_var <- function(total_sample_size, mean_diff,
 #' `r lifecycle::badge("experimental")`
 #'
 #' @description
-#' The function `pHotellingT()` computes the cumulative distribution function
+#' The function \code{pHotellingT()} computes the cumulative distribution function (CDF)
 #' of the two-sample Hotelling-\eqn{T^2} statistic (\eqn{P(T > q)}) in the multivariate response
 #' setting. This function is used to compute the power function
 #' of Two-Sample (TS) Projection-based test (Wang 2021, EJS.)
@@ -220,7 +212,9 @@ Sim_HotellingT_unequal_var <- function(total_sample_size, mean_diff,
 #'  a ratio of the linear combination of the K (dimension of the response) non-central
 #'  chi-squared random variables (where the non-centrality parameter depends on the mean difference)
 #'  and a chi-squared distribution whose degrees of freedom depends on a complicated functions of
-#'  sample size in the two groups.
+#'  sample size in the two groups. This function initially calls the
+#'  [fPASS::Sim_HotellingT_unequal_var] function to obtain the samples from the non-null distribution
+#'  and computes the CDF numerically with high precision based on a large number of samples.
 #'  See Koner and Luo (2023) for more details on the formula of the non-null distribution.
 #' @import Matrix
 #' @import lifecycle
@@ -233,20 +227,20 @@ Sim_HotellingT_unequal_var <- function(total_sample_size, mean_diff,
 #' @author Salil Koner \cr Maintainer: Salil Koner
 #' \email{salil.koner@@duke.edu}
 #' @param q The point at which the CDF needs to be evaluated
-#' @param total_sample_size Target sample size, must be a positive integer more than 10
+#' @param total_sample_size Target sample size, must be a positive integer.
 #' @param mean_diff The difference in the mean vector between the two groups, must be a vector.
 #' @param sig1 The true (or estimate) of covariance matrix for the first group. Must be symmetric
-#' (\code{is.symmetric(sig1) == TRUE}) and positive definite (chol(sig1) without an error!).
+#' (\code{is.symmetric(sig1) == TRUE}) and positive definite (\code{chol(sig1)} without an error!).
 #' @param sig2 The true (or estimate) of covariance matrix for the second group. Must be symmetric
-#' (\code{is.symmetric(sig2) == TRUE}) and positive definite (chol(sig2) without an error!).
+#' (\code{is.symmetric(sig2) == TRUE}) and positive definite (\code{chol(sig2)} without an error!).
 #' @param alloc.ratio Allocation of total sample size into the two groups. Must set as a vector of two
 #'                    positive numbers. For equal allocation it should be put as c(1,1), for non-equal
 #'                    allocation one can put c(2,1) or c(3,1) etc.
-#' @param lower.tail if TRUE, the CDF is returned, otherwise \eqn{P(T > q)} is returned.
-#' @return The CDF of the Hotelling T statistic is computed.
+#' @param lower.tail if TRUE, the CDF is returned, otherwise right tail probability is returned.
+#' @return The CDF of the Hotelling T statistic, if \code{lower.tail == TRUE},
+#' otherwise the right tail probability is returned.
 #' @seealso [Hotelling::hotelling.test()], [Hotelling::hotelling.stat()] to generate empirical samples
 #' from the Hotelling T-statistic from empirical data.
-#' @rdname Power_Hotelling_T
 #' @export
 #' @examples
 #' \dontrun{
@@ -292,10 +286,8 @@ pHotellingT <- function(q, total_sample_size, mean_diff,
   testthat::expect_true(rlang::is_double(q, finite=TRUE),
                         info = "q must be a numeric vector");
   # argument checking : total_sample_size
-  testthat::expect_true(rlang::is_integerish(total_sample_size, n=1, finite=TRUE) & (total_sample_size > 0),
+  testthat::expect_true(rlang::is_double(total_sample_size, n=1, finite=TRUE) & (total_sample_size > 0),
                         info = "total_sample_size must be a positive integer")
-  testthat::expect_gte(total_sample_size, 10,
-                       label = "total_sample_size less than 10 is not practical")
   # argument checking : sig1
   testthat::expect_true(rlang::is_double(sig1, finite=TRUE) & isSymmetric(sig1),
                         info = "sig1 must be a symmetric matrix");
@@ -320,21 +312,16 @@ pHotellingT <- function(q, total_sample_size, mean_diff,
   #*********************************************************************************************%
   #*                                         Main body                                          %
   #*********************************************************************************************%
-  message("Computing CDF of Hotelling T-squared statistic \n")
   if (norm(sig1-sig2) < 1e-12){
-    message("Difference in the true covariance
-             matrices between the two groups is very small:
-            assuming equal covariances")
     sig.common   <- (sig1 + sig2)/2
     k            <- length(mean_diff)
     n1           <- round(total_sample_size * {alloc.ratio[1]/sum(alloc.ratio)})
-    n2           <- total_sample_size - n1
+    n2           <- round(total_sample_size - n1)
     lamda        <- as.numeric(crossprod(mean_diff, solve(sig.common, as.vector(mean_diff))))
     prob         <- pf({(total_sample_size-k-1)*as.vector(q)}/{(total_sample_size-2)*k},
                        df1=k, df2=total_sample_size-k-1,
                        ncp = {(n1*n2)/total_sample_size}*lamda, lower.tail = lower.tail) # power for n
   } else{
-    message("Assuming unequal covariances")
     alt.samples  <- Sim_HotellingT_unequal_var(total_sample_size=total_sample_size,
                                                mean_diff=mean_diff,
                                                sig1=sig1, sig2=sig2,

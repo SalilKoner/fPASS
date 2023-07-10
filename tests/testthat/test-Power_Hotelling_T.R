@@ -143,10 +143,10 @@ testthat::test_that("Sim_HotellingT_unequal_var() throws an error when
           })
 
 testthat::test_that("Sim_HotellingT_unequal_var() throws an error when
-          length of the total_sample_size is not positive and greater than 10",{
+          length of the total_sample_size is not positive",{
             testthat::expect_error(fPASS::Sim_HotellingT_unequal_var(-10, rep(0.5,3), diag(3),
                                                               diag(3), c(1,1), 1e4))
-            testthat::expect_error(fPASS::Sim_HotellingT_unequal_var(5, rep(0.5,3), diag(3),
+            testthat::expect_error(fPASS::Sim_HotellingT_unequal_var(0, rep(0.5,3), diag(3),
                                                               diag(3), c(1,1), 1e4))
           })
 

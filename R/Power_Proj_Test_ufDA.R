@@ -1,4 +1,5 @@
-#' Power function of projection-based two-sample sample test for functional data.
+#' Power of the Two-sample Projection-based test for functional data with known (or estimated)
+#' eigencomponents.
 #'
 #' @description
 #' `r lifecycle::badge("experimental")`
@@ -6,11 +7,11 @@
 #' @description
 #' The function `Power_Proj_Test_ufDA()` computes the power of
 #' of the two-sample projection-based test for functional response data
-#' setting, for a given sample size and allocation ratio of the samples in
-#' the two groups.
+#' setting, when the group difference, the eigenfunctions of the covariance
+#' of the data are specified at dense grid of time points, along with the
+#' (estimated) covariance of the `shrinkage` scores.
 #'
-#' @details In the test, the covariance of the functions of the two groups is assumed to be
-#' equal. The projection-based test first extracts K eigenfunctions from the data, and then
+#' @details The projection-based test first extracts K eigenfunctions from the data, and then
 #' project the mean difference function onto each of the eigenfunctions to obtain a K-dimensional
 #' projection vector that reflects the group difference. Wang (2021) pointed that under the null
 #' hypothesis the covariance of K-dimensional functional principal component analysis (fPCA) scores
@@ -34,7 +35,7 @@
 #' @import dplyr
 #' @importFrom testthat expect_true expect_gte expect_no_error
 #' @importFrom stats cov rnorm
-#' @param total_sample_size Target sample size, must be a positive integer more than 10.
+#' @param total_sample_size Total sample size combing the two groups, must be a positive integer.
 #' @param argvals The working grid of timepoints to evaluate the eigenfunctions and the mean functions.
 #'                It is preferred to take the working grid as dense grid so that
 #'                \eqn{\int [\mu_1(t) - \mu_2(t)]\phi_k(t) \,dt} can be calculated with a required precision.
@@ -44,13 +45,13 @@
 #'                     must be a length(argvals) by K matrix, where K is the number of eigenfunctions.
 #' @param scores_var1 The true (or estimate) of covariance matrix of the shrinkage scores for the first group.
 #' Must be symmetric (\code{is.symmetric(scores_var1) == TRUE}) and positive definite
-#' (chol(scores_var1) without an error!).
+#' (\code{chol(scores_var1)} without an error!).
 #' @param scores_var2 The true (or estimate) of covariance matrix of the shrinkage scores for the second group.
 #' Must be symmetric (\code{is.symmetric(scores_var2) == TRUE}) and positive definite
-#' (chol(scores_var2) without an error!).
+#' (\code{chol(scores_var2)} without an error!).
 #' @param weights The weights to put to compute the projection \eqn{\int [\mu_1(t) - \mu_2(t)]\phi_k(t) \,dt},
 #' for each \eqn{k=1,\dots, K}. The integral is numerically approximated as
-#' `sum(mean_diff(argvals)*eigen_matrix[,k]*weights)`.
+#' \code{sum(mean_diff(argvals)*eigen_matrix[,k]*weights)}.
 #' @param sig.level Significance level of the test, default set at 0.05, must be less than 0.2.
 #'                  This is used to compute the critical value of the test.
 #' @param alloc.ratio Allocation of total sample size into the two groups. Must set as a vector of two
@@ -63,6 +64,10 @@
 #' and the eigencomponents of the covariance of the functional data.
 #' @seealso See [fPASS::pHotellingT()] and [fPASS::Sim_HotellingT_unequal_var()] for samples
 #' from Hotelling T distribution.
+#' @references Wang, Qiyao (2021)
+#' \emph{Two-sample inference for sparse functional data,  Electronic Journal of Statistics,
+#' Vol. 15, 1395-1423} \cr
+#' \doi{https://doi.org/10.1214/21-EJS1802}.
 #' @export Power_Proj_Test_ufDA
 #' @examples
 #' \dontrun{
@@ -114,8 +119,8 @@ Power_Proj_Test_ufDA <- function(total_sample_size, argvals,
   #*                         Compatibility checking of arguments                                %
   #*********************************************************************************************%
   # argument checking: total_sample_size
-  testthat::expect_true(rlang::is_integerish(total_sample_size, n=1, finite = TRUE) & (total_sample_size > 10),
-                        info = "total_sample_size must be a positive integer with value greater than 10")
+  testthat::expect_true(rlang::is_double(total_sample_size, n=1, finite = TRUE) & (total_sample_size > 0),
+                        info = "total_sample_size must be a positive integer")
   # argument checking: sig.level
   testthat::expect_true(rlang::is_double(sig.level, n=1, finite=TRUE) &
                           (sig.level > 0) & (sig.level <= 0.2),
@@ -156,32 +161,12 @@ Power_Proj_Test_ufDA <- function(total_sample_size, argvals,
   testthat::expect_no_error(chol(scores_var1), message = "scores_var1 is not positive definite")
   testthat::expect_no_error(chol(scores_var2), message = "scores_var2 is not positive definite")
 
-  # # argument checking: mean_diff
-  # mean_diff_fn      <- match.fun(mean_diff)
-  # testthat::expect_true(rlang::is_function(mean_diff),
-  #                       info = "The mean_diff must be an existing function")
-  # # argument checking: mean_fun_args
-  # mean_diff_args <- rlang::fn_fmls_names(mean_diff)
-  # if (length(mean_diff_args) > 1) {
-  #   testthat::expect_true(!is.null(mean_fun_args) & rlang::is_list(mean_fun_args, n=length(mean_diff_args)-1) &
-  #                           rlang::is_vector(setdiff(mean_diff_args[-1], names(mean_fun_args)), n=0),
-  #                         info="all the arguments of mean_diff function must be supplied as a named list")
-  # }
-  # mean_diff_vec  <- call2(mean_diff_fn_name, argvals, !!!mean_fun_args)
-  # testthat::expect_true(rlang::is_double(mean_diff_vec,n=length(argvals),finite=TRUE),
-  #                       info = "mean_diff function does not produce results as expected.")
-
   #*********************************************************************************************%
   #*                                          Main body                                         %
   #*********************************************************************************************%
 
-  cat("Computing power for total sample size = ", total_sample_size, "\n")
-
-  projection     <- colSums(sweep(eigen_matrix[, 1:npc_to_pick, drop=FALSE], 1, mean_vector*weights, FUN = "*"))
-  eff_size       <- apply(sweep(eigen_matrix[,   1:npc_to_pick, drop=FALSE], 1, mean_vector, FUN = "*"),
-                          2, function(col) sum(col*weights) )
-  # cat("Projection vector value is ", projection, "\n")
-  # cat("Difference between projection and eff_size is", mean((projection-eff_size)^2), "\n")
+  projection     <- colSums(sweep(eigen_matrix[, 1:npc_to_pick, drop=FALSE], 1,
+                                  mean_vector*weights, FUN = "*"))
   sig1           <- scores_var1[1:npc_to_pick,  1:npc_to_pick, drop=FALSE]
   sig2           <- scores_var2[1:npc_to_pick,  1:npc_to_pick, drop=FALSE]
   critical.value <- {{(total_sample_size - 2)*npc_to_pick}/(total_sample_size - npc_to_pick -1)}*

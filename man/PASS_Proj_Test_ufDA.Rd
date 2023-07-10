@@ -3,7 +3,7 @@
 \name{PASS_Proj_Test_ufDA}
 \alias{PASS_Proj_Test_ufDA}
 \title{Power and Sample size (PASS) calculation of
-Two-Sample (TS) Projection-based test (ProjTest) for sparsely observed univariate functional data.}
+Two-Sample Projection-based test for sparsely observed univariate functional data.}
 \usage{
 PASS_Proj_Test_ufDA(
   sample_size,
@@ -22,155 +22,204 @@ PASS_Proj_Test_ufDA(
   fpca_method = c("fpca.sc", "face"),
   mean_diff_add_args = list(),
   fpca_optns = list(pve = 0.95),
-  npc_to_use = 2
+  npc_to_use = NULL,
+  return.eigencomp = FALSE
 )
 }
 \arguments{
-\item{sample_size}{Total sample size combining both the groups, must be a positive integer more than 3.}
+\item{sample_size}{Total sample size combining both the groups, must be a positive integer.}
 
-\item{target.power}{Target power, must be a number between 0 and 1.
-Only one of sample_size and target.power should be non-null. The
-function will automatically solve for sample size if sample_size is NULL, and
-solve for power if target.power is NULL.}
+\item{target.power}{Target power to achieve, must be a number between 0 and 1.
+Only one of \code{sample_size} and \code{target.power} should be non-null. The
+function will return sample size if \code{sample_size} is NULL, and
+return power if \code{target.power} is NULL.}
 
-\item{sig.level}{Significance level of the test, default set at 0.05, must be less than 0.2.
-This is used to compute the critical value of the test.}
+\item{sig.level}{Significance level of the test, default set at 0.05, must be less than 0.2.}
 
-\item{nobs_per_subj}{The number of observations per subject. Each element of it greater than 3.
-Could be a vector to specify that the number of observation for each is randomly varying
+\item{nobs_per_subj}{The number of observations per subject. Each element of it must be greater than 3.
+It could also be a vector to indicate that the number of observation for each is randomly varying
 between the elements of the vector, or a scalar to ensure that the number of observations are same
-for each subject.}
+for each subject. See examples.}
 
-\item{obs.design}{The sampling design of the observations. Must be provided as a list with the following elements.
-For functional design it must be provided as a named list with elements "design" and "fun.domain", where for example,
-design = "functional" and \code{fun.domain = c(0,1)} specifying the domain of the functions. For longitudinal design,
-it must be a named list with elements "design", "visit.schedule" and "visit.window", where the last two elements
-specifying schedule of visits (in months or days or any scale), other than the baseline visit
-and the maximum time window for every visit, which is also for every visit other than the baseline. See examples.}
+\item{obs.design}{The sampling design of the observations. Must be provided as
+a list with the following elements. If the design is longitudinal (e.g. a clinical trial
+where there is pre-specified schedule of visit for the participants) it must be
+a named list with elements \code{design}, \code{visit.schedule} and \code{visit.window}, where
+\code{obs.design$design} must be specified as \code{'longitudinal'}, \code{visit.schedule}
+specifying schedule of visits (in months or days or any unit of time), other than the baseline visit
+and \code{visit.window} denoting the maximum time window for every visit.
+For functional design (where the observation points are either densely observed within a
+compact interval or under a sparse random design), the argument must be provided
+as a named list with elements\code{design} and \code{fun.domain}, where
+\code{obs.design$design} must be specified as \code{'functional'} and \code{obs.design$fun.domain}
+must be specified as a two length vector indicating the domain of the function.
+See Details on the specification of arguments section below more details.}
 
-\item{mean_diff_fnm}{The name of the function representing the group difference. Must be supplied as character.}
+\item{mean_diff_fnm}{The name of the function that output of the difference of the mean between the
+two groups at any given time. It must be supplied as character, so that \code{match.fun(mean_diff_fnm)}
+returns a valid function, that takes a vector input, and returns a vector of the same length of the input.}
 
-\item{cov.type}{The type of the covariance structure of the data, must be either of "ST" (stationary) or
-"NS" (non-stationary)}
+\item{cov.type}{The type of the covariance structure of the data, must be either of 'ST' or
+'NS'. This argument along with the \code{cov.par} argument must be
+specified compatibly to ensure that the function does not return an error. See the details
+of \code{cov.par} argument.}
 
-\item{cov.par}{The covariance parameters that needs to be specified.
-If \code{cov.type='ST'} then, cov.par
-must be a named list of two elements, "var" and "cor", where "var" denotes
-the common variance of the observations, must be a positive number; and "cor" denotes
-The correlation structure between the observations.
-It must be provided in the form specified in the
-available in the documentation of R package \pkg{nlme}. Check the package documentation for more details.
-The argument of this function is passed onto the \code{\link[nlme:corMatrix]{nlme::corMatrix()}} to extract the subject-specific
-covariance matrix.
-If \code{cov.type='NS'} then, cov.par
-must be a named list of two elements, "cov.obj" and "eigen.comp".
-Only one of the "cov.obj" or "eigen.comp" must be non-null. If the "cov.obj" is
-specified, then it must be either a bivariate function. Alternatively,
-if the true eigenfunctions (and number of eigenfunctions, say K) are known,
-then the user can specify that by specifying eigen.comp.
-In this case, the eigen.comp must be a named list with two elements,
-"eig.obj" and "eig.val".
-The object "eig.obj" must be a function so that the code \code{eigen.comp$eig.obj(timepoints)}
-returns a matrix of dimension r by K, where r is the length of \code{timepoints} and K
-is the number of eigenfunctions.}
+\item{cov.par}{The covariance structure of the latent response trajectory.
+If \code{cov.type == 'ST'} then, \code{cov.par}
+must be specified a named list of two elements, \code{var} and \code{cor},
+where \code{var} is the common variance of the observations, which must be a
+positive number; and \code{cor} specifies the correlation structure between
+the observations. \code{cov.par$cor} must be specified in the form of the
+\link[nlme:corClasses]{nlme::corClasses} specified in R package \pkg{nlme}.
+Check the package documentation for more details for each of the correlation classes.
+The \code{cov.par$cor} must be a \code{corStruct} class so it can be
+passed onto the \code{\link[nlme:corMatrix]{nlme::corMatrix()}} to extract the subject-specific covariance matrix.
+If \code{cov.type='NS'} then, \code{cov.par}
+must be a named list of two elements, \code{cov.obj} and \code{eigen.comp},
+where only one of the \code{cov.par$cov.obj} or \code{cov.par$eigen.comp}
+must be non-null. This is to specify that the covariance structure of the
+latent trajectory can be either provided in the form of covariance function or
+in the form of eigenfunction and eigenvalues (Spectral decomposition).
+If the \code{cov.par$cov.obj} is specified, then it must be a bivariate function,
+with two arguments. Alternatively, if the true eigenfunctions  are known,
+then the user can specify that by specifying \code{cov.par$eigen.comp}.
+In this case, the \code{cov.par$eigen.comp} must be a named list with two elements,
+\code{eig.obj} and \code{eig.val}, where \code{cov.par$eigen.comp$eig.val}
+must be positive vector and \code{cov.par$eigen.comp$eig.obj}
+must be a vectorized function so that its evaluation at a vector of time points
+returns a matrix of dimension r by \code{length(cov.par$eigen.comp$eig.val)},
+with r being the length of time points.}
 
-\item{sigma2.e}{Measurement error variance, should be set as zero if there is no measurement error.}
+\item{sigma2.e}{Measurement error variance, should be set as zero or a very small number
+if the measurement error is not significant.}
 
 \item{missing_type}{The type of missing in the number of observations of the subjects. Can be one of
-\code{missing_type = "nomiss"} for no missing observations
-or \code{missing_type = "constant"} for constant
-missing. Only supports \code{missing_type = "constant"} now. Note that, if
-nobs_per_subj is specified as vector,
-\code{missing_type} is forced to set as "nomiss" and \code{missing_percent = 0}, because
-the \code{missing_type = "constant"} has no meaning if the number of observations are
+\code{'nomiss'} for no missing observations
+or \code{'constant'} for constant
+missing percentage at every time point. The current version of package only supports
+\code{missing_type = 'constant'}.}
+
+\item{missing_percent}{The percentage of missing at each observation points for each subject.
+If \code{nobs_per_subj} is supplied as vector, then \code{missing_type}
+is forced to set as \code{'nomiss'} and \code{missing_percent = 0}, because
+the \code{missing_type = 'constant'} has no meaning if the number of observations are
 varying between the subject at the first, typically considered in
 the case of sparse random functional design.}
 
-\item{missing_percent}{The percentage of missing at each observation points for each subject.}
-
-\item{eval_SS}{The sample size based on which the eigenfunctions will be estimated from data.
+\item{eval_SS}{The sample size based on which the eigencomponents will be estimated from data.
 To compute the theoretical power of the test we must make sure that we use a large enough sample size
 to generate the data such that the estimated eigenfunctions are very close to the true eigenfunctions
 and that the sampling design will not have much effect on the loss of precision. Default value 5000.}
 
-\item{alloc.ratio}{The allocation ratio of samples in the each group. Note that the eigenfunctions will still
-be estimated based on the total sample_size, however, the variance of the shrinkage scores will be
+\item{alloc.ratio}{The allocation ratio of samples in the each group. Note that the eigenfunctions
+will still be estimated based on the total sample_size, however, the variance
+of the \code{shrinkage} scores (which is required to compute the power function) will be
 estimated based on the allocation of the samples in each group. Must be given as vector of
-length 2. Default value is set at c(1,1), indicating equal sample size.}
+length 2. Default value is set at \code{c(1,1)}, indicating equal sample size.}
 
-\item{fpca_method}{The method by which the FPCA is computed. Must be one of c("fpca.sc", "face").}
+\item{fpca_method}{The method by which the FPCA is computed. Must be one of
+\code{'fpca.sc'} and \code{'face'}. If \code{fpca_method == 'fpca.sc'} then the eigencomponents
+are estimated using the function \code{\link[refund:fpca.sc]{refund::fpca.sc()}}. However, since the \code{\link[refund:fpca.sc]{refund::fpca.sc()}}
+function fails to estimate the correct \code{shrinkage} scores, and throws \code{NA} values
+when the measurement errors is estimated to be zero, we wrote out a similar function
+where we corrected those error in current version of \code{\link[refund:fpca.sc]{refund::fpca.sc()}}. Check out
+the \code{\link[=fpca.sc]{fpca.sc()}} function for details. If \code{fpca_method == 'face'}, then
+the eigencomponents are estimated using \code{\link[face:face.sparse]{face::face.sparse()}} function.}
 
-\item{mean_diff_add_args}{Additional arguments to be passed to the mean_diff
-function specified by the name \code{mean_diff_fnm}.}
+\item{mean_diff_add_args}{Additional arguments to be passed to group difference
+function specified in the argument \code{mean_diff_fnm}.}
 
-\item{fpca_optns}{Additional options to be passed onto either of \code{refund::fpca.sc()}
-or \code{face::face.sparse()} function in order
+\item{fpca_optns}{Additional options to be passed onto either of \code{\link[=fpca.sc]{fpca.sc()}}
+or \code{\link[face:face.sparse]{face::face.sparse()}} function in order
 to estimate the eigencomponents. It must be a named list with elements
 to be passed onto the respective function, depending on the \code{fpca_method}.}
 
-\item{npc_to_use}{Number of eigenfunctions to use to compute the power.}
+\item{npc_to_use}{Number of eigenfunctions to use to compute the power. Default is NULL, in
+which case all the eigenfunctions estimated from the data will be used.}
+
+\item{return.eigencomp}{Indicates whether to return the eigencomponents obtained from the fPCA
+on the large data with sample size equal to \code{eval_SS}. Default is \code{FALSE}.}
 }
 \value{
-Returns the estimated eigenfunctions and the covariance of the shrinkage scores for the
-for the two groups, as well as the combined covariances assuming that they have the same o
-covariances.
+A list with following elements, \code{power_value} if \code{is.null(target.power)}
+then returns the power of the test when n equal to \code{sample_size}, otherwise \code{required_SS},
+the sample size required to achieve the power of the test at \code{target.power}.
+If \code{return.eigencomp == TRUE} then \code{est_eigencomp} is also returned, containing
+the entire output obtained from internal call of \code{\link[=Extract_Eigencomp_fDA]{Extract_Eigencomp_fDA()}}.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 
-This function \code{PASS_Proj_Test_ufDA()} computes the power and sample size required to conduct
+The function \code{PASS_Proj_Test_ufDA()} computes the power and sample size (PASS) required to conduct
 the projection-based test of mean function between two groups of longitudinal data
 or sparsely observed functional data under a random irregular design, under
-common covariance structure between the groups.
+common covariance structure between the groups. See Wang (2021) for more details
+of the testing procedure.
 }
 \details{
-The projection-based test assumes the two groups of the data share the identical
-covariance structure. We allow the covariance structure of the data as both parametric
-and non-parametric. If the covariance structure is non-parametric, then, the user must specify the
-the covariance function in the form of a function.
-The projection-based test represents the sparsely observed
-functions parsimoniously in terms of Karhunen-Loeve (KL) expansion and use the
-functional principal component analysis scores to test the difference in the mean
-function between two groups, by taking advantage of multivariate Hotelling-\eqn{T^2} test.
-See Wang (2021) for more details of the testing procedure. We use the \code{fpca.sc()} which
-is a just a copy of \code{refund::fpca.sc()} function to account for the shrinkage correctly,
-or \code{face::face.sparse()} function to conduct the functional principal component analysis (fPCA).
+The function is designed to perform the power and sample size analysis
+for functional under a dense and sparse (random) design and longitudinal data. The
+function can handle data from wide variety of covariance structure, can be parametric,
+or non-parametric. Additional with traditional stationary structures assumed for longitudinal
+data (see \link[nlme:corClasses]{nlme::corClasses}), the user can specify any other non-stationary covariance
+function in the form of either a covariance function or in terms of eigenfunctions and
+eigenvalues. The user have a lot of flexibility into tweaking the arguments of the function
+to assess the power function of the test under different sampling design and covariance process
+of the response trajectory, and for any arbitrary mean difference function. Overall, the
+functionality of the module is quite comprehensive and includes all the different cases
+considered in the NCSS PASS software. We believe that this software can be an effective
+clinical trial design tools when considering the projection-based test as the primary
+decision making method.
 \subsection{Details on the specification of arguments.}{
 
-If \code{obs.design$design == "functional"} then a dense grid of length, specified by ngrid (typically 101/201) is internally created, and
-the observation points will be randomly chosen from them. The time points could also randomly chosen between
-any number between the interval, but then for large number of subject, \code{\link[=fpca.sc]{fpca.sc()}} function will take huge
-time to estimate the eigenfunction. For dense design, the user must set a large value of the argument
-\code{nobs_per_subj} and for sparse (random) design, \code{nobs_per_subj} should be set small (and varying).
-On the other hand, typical to longitudinal data, if the measurements are taken at fixed time points (from baseline)
-for each subject, then the user must set \code{obs.design$design == "longitudinal"} and the time points must be accordingly specified
-in the argument \code{obs.design$visit.schedule}. The length of \code{obs.design$visit.schedule} must match \code{length(nobs_per_subj)-1}.
-so that it lies between \eqn{[0,1]}, so user should not specify any "fun.domain" in the
-list for obs.design$design == "longitudinal". Make sure that the mean_function and the covariance function specified
-in the \code{cov.par} and \code{mean_diff_fnm} parameter also scaled to take argument between \eqn{[0,1]}.
-Also, it is imperative to say that \code{nobs_per_subj} must be of a scalar positive inter for \code{design == "longitudinal"}.
+If \code{obs.design$design == 'functional'} then a dense grid of length,
+specified by ngrid (typically 101/201) is internally created, and
+the observation points will be randomly chosen from them.
+The time points could also randomly chosen between
+any number between the interval, but then for large number of subject,
+\code{\link[=fpca.sc]{fpca.sc()}} function will take huge
+time to estimate the eigenfunction. For dense design, the user must set
+a large value of the argument \code{nobs_per_subj} and for sparse (random) design,
+\code{nobs_per_subj} should be set small (and varying).
+On the other hand, typical to longitudinal data, if the measurements are
+taken at fixed time points (from baseline)
+for each subject, then the user must set \code{obs.design$design == 'longitudinal'} and
+the time points must be accordingly specified
+in the argument \code{obs.design$visit.schedule}. The length of \code{obs.design$visit.schedule}
+must match \code{length(nobs_per_subj)-1}. Internally, when
+\code{obs.design$design == 'longitudinal'}, the function scale the visit times
+so that it lies between \eqn{[0,1]}, so the user should not
+specify any element named \code{fun.domain} in the
+list for \code{obs.design$design == 'longitudinal'}. Make sure that
+the mean function and the covariance function specified
+in the \code{cov.par} and \code{mean_diff_fnm} parameter also scaled to
+take argument between \eqn{[0,1]}. Also, it is imperative to say that \code{nobs_per_subj} must
+be of a scalar positive integer for \code{design == 'longitudinal'}.
 }
 }
 \examples{
 
 \dontrun{
 set.seed(12345)
-mean.diff <- function(t) {t};
-obs.design = list("design" = "functional",
-"visit.schedule" = seq(0.1, 0.9, length.out=7), "visit.window" = 0.05)
+mean.diff <- function(t) {0*t};
+obs.design = list("design" = "longitudinal",
+                  "visit.schedule" = seq(0.1, 0.9, length.out=7),
+                   "visit.window" = 0.05)
 cor.str <- nlme::corExp(1, form = ~ time | Subject);
-sigma2 <- 1; sigma2.e <- 0.25; nobs_per_subj <- 6;
+sigma2 <- 1; sigma2.e <- 0.25; nobs_per_subj <- 8;
 missing_type <- "constant"; missing_percent <- 0.01;
-eigencomp  <- PASS_Proj_Test_ufDA(obs.design = obs.design,
- mean_diff_fnm = "mean.diff", cov.type = "ST",
-   cov.par = list("var" = sigma2, "cor" = cor.str),
-   sigma2.e = sigma2.e, nobs_per_subj = nobs_per_subj,
-   missing_type = missing_type,
-   missing_percent = missing_percent, eval_SS = 5000,
-  alloc.ratio = c(1,1),
-  fpca_method = "fpca.sc",
-  mean_diff_add_args = list(), fpca_optns = list("pve" = 0.95))
+pow  <- PASS_Proj_Test_ufDA(sample_size = 100, target.power = NULL, sig.level = 0.05,
+                            obs.design = obs.design,
+                            mean_diff_fnm = "mean.diff", cov.type = "ST",
+                            cov.par = list("var" = sigma2, "cor" = cor.str),
+                            sigma2.e = sigma2.e, nobs_per_subj = nobs_per_subj,
+                            missing_type = missing_type,
+                            missing_percent = missing_percent, eval_SS = 5000,
+                            alloc.ratio = c(1,1),
+                            fpca_method = "fpca.sc",
+                            mean_diff_add_args = list(), fpca_optns = list("pve" = 0.95))
 
+pow$power_value
 }
 \dontrun{
 alloc.ratio  <- c(1,1)
@@ -180,19 +229,47 @@ eig.fun <- function(t, k) {
   else if (k==2) ef <- sqrt(2)*cos(2*pi*t)
   return(ef)}
 eig.fun.vec  <- function(t){cbind(eig.fun(t, 1),eig.fun(t, 2))}
-eigen.comp   <- list("eig.val" = c(1, 0.5), "eig.obj" = eig.fun)
+eigen.comp   <- list("eig.val" = c(1, 0.5), "eig.obj" = eig.fun.vec)
 obs.design   <- list(design = "functional", fun.domain = c(0,1))
 cov.par      <- list("cov.obj" = NULL, "eigen.comp" = eigen.comp)
 sigma2.e     <- 0.001; nobs_per_subj <- 4:7;
 missing_type <- "nomiss"; missing_percent <- 0;
 fpca_method  <- "fpca.sc"
-eigencomp  <- PASS_Proj_Test_ufDA(obs.design = obs.design,
-mean_diff_fnm = "mean.diff", cov.type = "NS",
-cov.par = cov.par, sigma2.e = sigma2.e,
-nobs_per_subj = nobs_per_subj, missing_type = missing_type,
-missing_percent = missing_percent, eval_SS = 5000,
-alloc.ratio = alloc.ratio, fpca_method = "fpca.sc",
-mean_diff_add_args = list(), fpca_optns = list(pve = 0.95))
+pow  <- PASS_Proj_Test_ufDA(sample_size = 100, target.power = NULL,
+                            sig.level = 0.05, obs.design = obs.design,
+                            mean_diff_fnm = "mean.diff", cov.type = "NS",
+                            cov.par = cov.par, sigma2.e = sigma2.e,
+                            nobs_per_subj = nobs_per_subj, missing_type = missing_type,
+                            missing_percent = missing_percent, eval_SS = 5000,
+                            alloc.ratio = alloc.ratio, fpca_method = "fpca.sc",
+                            mean_diff_add_args = list(), fpca_optns = list(pve = 0.95))
+
+pow$power_value
+}
+\dontrun{
+alloc.ratio  <- c(1,1)
+mean.diff    <- function(t) {1 * (t^3)};
+eig.fun <- function(t, k) {
+  if (k==1) ef <- sqrt(2)*sin(2*pi*t)
+  else if (k==2) ef <- sqrt(2)*cos(2*pi*t)
+  return(ef)}
+eig.fun.vec  <- function(t){cbind(eig.fun(t, 1),eig.fun(t, 2))}
+eigen.comp   <- list("eig.val" = c(1, 0.5), "eig.obj" = eig.fun.vec)
+obs.design   <- list(design = "functional", fun.domain = c(0,1))
+cov.par      <- list("cov.obj" = NULL, "eigen.comp" = eigen.comp)
+sigma2.e     <- 0.001; nobs_per_subj <- 4:7;
+missing_type <- "nomiss"; missing_percent <- 0;
+fpca_method  <- "fpca.sc"
+pow  <- PASS_Proj_Test_ufDA(sample_size = NULL, target.power = 0.8,
+                            sig.level = 0.05, obs.design = obs.design,
+                            mean_diff_fnm = "mean.diff", cov.type = "NS",
+                            cov.par = cov.par, sigma2.e = sigma2.e,
+                            nobs_per_subj = nobs_per_subj, missing_type = missing_type,
+                            missing_percent = missing_percent, eval_SS = 5000,
+                            alloc.ratio = alloc.ratio, fpca_method = "fpca.sc",
+                            mean_diff_add_args = list(), fpca_optns = list(pve = 0.95))
+
+pow$required_SS
 }
 }
 \references{
@@ -202,7 +279,7 @@ Vol. 15, 1395-1423} \cr
 \doi{https://doi.org/10.1214/21-EJS1802}.
 }
 \seealso{
-See \code{\link[=Power_Proj_Test_ufDA]{Power_Proj_Test_ufDA()}} and \code{\link[=pHotellingT]{pHotellingT()}}.
+See \code{\link[=Power_Proj_Test_ufDA]{Power_Proj_Test_ufDA()}} and \code{\link[=Extract_Eigencomp_fDA]{Extract_Eigencomp_fDA()}}.
 }
 \author{
 Salil Koner \cr Maintainer: Salil Koner

@@ -2,7 +2,8 @@
 % Please edit documentation in R/Power_Proj_Test_ufDA.R
 \name{Power_Proj_Test_ufDA}
 \alias{Power_Proj_Test_ufDA}
-\title{Power function of projection-based two-sample sample test for functional data.}
+\title{Power of the Two-sample Projection-based test for functional data with known (or estimated)
+eigencomponents.}
 \usage{
 Power_Proj_Test_ufDA(
   total_sample_size,
@@ -18,7 +19,7 @@ Power_Proj_Test_ufDA(
 )
 }
 \arguments{
-\item{total_sample_size}{Target sample size, must be a positive integer more than 10.}
+\item{total_sample_size}{Total sample size combing the two groups, must be a positive integer.}
 
 \item{argvals}{The working grid of timepoints to evaluate the eigenfunctions and the mean functions.
 It is preferred to take the working grid as dense grid so that
@@ -32,11 +33,11 @@ must be a length(argvals) by K matrix, where K is the number of eigenfunctions.}
 
 \item{scores_var1}{The true (or estimate) of covariance matrix of the shrinkage scores for the first group.
 Must be symmetric (\code{is.symmetric(scores_var1) == TRUE}) and positive definite
-(chol(scores_var1) without an error!).}
+(\code{chol(scores_var1)} without an error!).}
 
 \item{scores_var2}{The true (or estimate) of covariance matrix of the shrinkage scores for the second group.
 Must be symmetric (\code{is.symmetric(scores_var2) == TRUE}) and positive definite
-(chol(scores_var2) without an error!).}
+(\code{chol(scores_var2)} without an error!).}
 
 \item{weights}{The weights to put to compute the projection \eqn{\int [\mu_1(t) - \mu_2(t)]\phi_k(t) \,dt},
 for each \eqn{k=1,\dots, K}. The integral is numerically approximated as
@@ -62,12 +63,12 @@ and the eigencomponents of the covariance of the functional data.
 
 The function \code{Power_Proj_Test_ufDA()} computes the power of
 of the two-sample projection-based test for functional response data
-setting, for a given sample size and allocation ratio of the samples in
-the two groups.
+setting, when the group difference, the eigenfunctions of the covariance
+of the data are specified at dense grid of time points, along with the
+(estimated) covariance of the \code{shrinkage} scores.
 }
 \details{
-In the test, the covariance of the functions of the two groups is assumed to be
-equal. The projection-based test first extracts K eigenfunctions from the data, and then
+The projection-based test first extracts K eigenfunctions from the data, and then
 project the mean difference function onto each of the eigenfunctions to obtain a K-dimensional
 projection vector that reflects the group difference. Wang (2021) pointed that under the null
 hypothesis the covariance of K-dimensional functional principal component analysis (fPCA) scores
@@ -107,6 +108,12 @@ mean_vector = mean_vector, eigen_matrix = eigen_matrix,
 scores_var1 = sig1, scores_var2= sig2, weights = gauss.quad.pts$wt,
 sig.level=alp, alloc.ratio = c(1,1), npc_to_pick=ncol(eigen_matrix))
 }
+}
+\references{
+Wang, Qiyao (2021)
+\emph{Two-sample inference for sparse functional data,  Electronic Journal of Statistics,
+Vol. 15, 1395-1423} \cr
+\doi{https://doi.org/10.1214/21-EJS1802}.
 }
 \seealso{
 See \code{\link[=pHotellingT]{pHotellingT()}} and \code{\link[=Sim_HotellingT_unequal_var]{Sim_HotellingT_unequal_var()}} for samples
