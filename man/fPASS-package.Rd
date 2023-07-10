@@ -24,6 +24,7 @@ decision making method.
 Useful links:
 \itemize{
   \item \url{https://github.com/SalilKoner/fPASS}
+  \item \url{https://salilkoner.github.io/fPASS/}
   \item Report bugs at \url{https://github.com/SalilKoner/fPASS/issues}
 }
 

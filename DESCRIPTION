@@ -35,5 +35,6 @@ Suggests:
     rmarkdown,
     Hotelling
 VignetteBuilder: knitr
-URL: https://github.com/SalilKoner/fPASS
+URL: https://github.com/SalilKoner/fPASS,
+    https://salilkoner.github.io/fPASS/
 BugReports: https://github.com/SalilKoner/fPASS/issues
