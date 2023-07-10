@@ -18,9 +18,9 @@ multivariate case.
 
 fPASS is designed to make it quick and easy software for randomized
 clinical trial simulation tool for determining treatment efficacy where
-the response collected under a longitudinal or functional design. Check
-out the [package and the available
-routines](https://salilkoner.github.io/fPASS/).
+the response collected under a longitudinal or functional design. The
+current development version of the package can be installed by running
+the following.
 
 ## Installation
 
