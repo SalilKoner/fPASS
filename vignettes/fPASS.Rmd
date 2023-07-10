@@ -18,4 +18,5 @@ knitr::opts_chunk$set(
 library(fPASS)
 ```
 
-This document will present a elaborate understanding of the fPASS R package and its capabilites. 
+This document will present a elaborate understanding of the fPASS R package and its capabilites. To do this, we need to understand its main
+functionalities. 
