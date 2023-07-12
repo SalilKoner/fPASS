@@ -1,13 +1,14 @@
 Package: fPASS
-Title: Two Sample Projection-based Test of Mean function for Functional
-    Data
+Title: Power and Sample size (PASS) calculation
+                         for two sample projection-based testing of group difference
+                         under a repeatedly measured longitudinal or sparsely functional design
 Version: 1.0.0
-Authors@R: 
-    person("Salil", "Koner", , "salil.koner@duke.edu", role = c("aut", "cre"),
-           comment = c(ORCID = "https://orcid.org/0000-0003-1952-4210"))
+Authors@R: c(
+    person("Salil", "Koner", email = "salil.koner@duke.edu", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0003-1952-4210")),
+    person("Sheng", "Luo", email = "sheng.luo@duke.edu", role = c("ctb", "fnd")))
 Description: Computes the Power and Sample size required to test for the
-    difference in the mean function between two groups of longitudinal data or sparsely
-    observed functional data under irregular design under arbitrary covariance structure. See
+    difference in the mean function between two groups under a repeatedly measured longitudinal or or sparse functional design. See
     Wang (2021) <https://doi.org/10.1214/21-EJS1802> and Koner and Luo (2023) <https://arxiv.org/abs/2302.05612> for details of the testing procedure. 
 License: MIT + file LICENSE
 Encoding: UTF-8

@@ -35,7 +35,7 @@ the following.
 
 ``` r
 # Install development version from GitHub
-devtools::install_github("SalilKoner/fPASS", build_vignettes = TRUE)
+devtools::install_github("SalilKoner/fPASS", build_vignettes = TRUE) # Vignettes takes about 20 minutes to run. 
 ```
 
 </div>

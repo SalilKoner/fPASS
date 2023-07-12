@@ -34,5 +34,10 @@ the power and sample size of the test.
 \author{
 \strong{Maintainer}: Salil Koner \email{salil.koner@duke.edu} (\href{https://orcid.org/0000-0003-1952-4210}{ORCID})
 
+Other contributors:
+\itemize{
+  \item Sheng Luo \email{sheng.luo@duke.edu} [contributor, funder]
+}
+
 }
 \keyword{internal}

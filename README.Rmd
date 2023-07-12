@@ -41,6 +41,6 @@ fPASS is designed to make it quick and easy software for randomized clinical tri
 ::: .pkgdown-devel
 ```{r, eval = FALSE}
 # Install development version from GitHub
-devtools::install_github("SalilKoner/fPASS", build_vignettes = TRUE)
+devtools::install_github("SalilKoner/fPASS", build_vignettes = TRUE) # Vignettes takes about 20 minutes to run. 
 ```
 :::
