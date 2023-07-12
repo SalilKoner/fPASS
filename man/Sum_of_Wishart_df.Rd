@@ -33,13 +33,13 @@ where n1 + n2 is equal to the \code{total_sample_size}.
 See Koner and Luo (2023) for more details on the formula for degrees of freedom.
 }
 \examples{
-\dontrun{
+
 k <- 8
 mu1  <- rep(0,k); del  <- 0.4; mu2 <- mu1 + rep(del, k);
 sig1 <- diag(k); sig2 <- sig1 + del*toeplitz(c(1,rep(0.5, k-1)))
-alt.dist.samples <- Sum_of_Wishart_df(total_sample_size=150, k=k,
+alt.dist.samples <- Sum_of_Wishart_df(total_sample_size=150,
 sig1=sig1, sig2=sig2, alloc.ratio=c(2,1))
-}
+
 }
 \seealso{
 \code{\link[=Sim_HotellingT_unequal_var]{Sim_HotellingT_unequal_var()}} and \code{\link[=pHotellingT]{pHotellingT()}}.

@@ -63,7 +63,7 @@ and computes the CDF numerically with high precision based on a large number of 
 See Koner and Luo (2023) for more details on the formula of the non-null distribution.
 }
 \examples{
-\dontrun{
+
 B           <- 10000
 k           <- 4
 n2          <- 60
@@ -78,7 +78,7 @@ cutoff      <- seq(0,30, length.out=20)
 the_cdf     <- round(pHotellingT(cutoff, n1+n2, mu1 - mu2,
                                  sig1, sig2, alloc.ratio=c(2,1),
                                  lower.tail=FALSE),3)
-}
+
 }
 \seealso{
 \code{\link[Hotelling:hotelling.test]{Hotelling::hotelling.test()}}, \code{\link[Hotelling:hotelling.stat]{Hotelling::hotelling.stat()}} to generate empirical samples

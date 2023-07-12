@@ -29,13 +29,13 @@
 #' \email{salil.koner@@duke.edu}
 #' @seealso [fPASS::Sim_HotellingT_unequal_var()] and [fPASS::pHotellingT()].
 #' @examples
-#' \dontrun{
+#'
 #' k <- 8
 #' mu1  <- rep(0,k); del  <- 0.4; mu2 <- mu1 + rep(del, k);
 #' sig1 <- diag(k); sig2 <- sig1 + del*toeplitz(c(1,rep(0.5, k-1)))
-#' alt.dist.samples <- Sum_of_Wishart_df(total_sample_size=150, k=k,
+#' alt.dist.samples <- Sum_of_Wishart_df(total_sample_size=150,
 #' sig1=sig1, sig2=sig2, alloc.ratio=c(2,1))
-#' }
+#'
 Sum_of_Wishart_df <- function(total_sample_size, alloc.ratio, sig1, sig2){
 
 
@@ -156,9 +156,7 @@ Sum_of_Wishart_df <- function(total_sample_size, alloc.ratio, sig1, sig2){
 #' from the Hotelling T-statistic from empirical data.
 #' @export
 #' @examples
-#' \dontrun{
-#' # In both the samples we assume that the covariances differ as the
-#' # mean vector between the two groups differ.
+#'
 #' # Case 1: Null hypothesis is true. True mean difference is zero, and the true
 #' # covariance of the two groups are same.
 #' k <- 5
@@ -170,8 +168,8 @@ Sum_of_Wishart_df <- function(total_sample_size, alloc.ratio, sig1, sig2){
 #' # and when the covariances are same, the distribution is exactly a
 #' # central F distribution with \eqn{k} and \eqn{n-k}  degrees of freedom.
 #' ks.test(null.dist.samples$samples, {{(n - 2) * k}/(n - k -1)} * {rf(n=1e3, k, n-k-1)} )
-#' }
-#' \dontrun{
+#'
+#'
 #' # Case 2: Alternate hypothesis is true. The mean difference is non-zero,
 #' # and the covariances of the two groups are same:
 #' k <- 6
@@ -181,10 +179,10 @@ Sum_of_Wishart_df <- function(total_sample_size, alloc.ratio, sig1, sig2){
 #' alt.dist.samples <- Sim_HotellingT_unequal_var(total_sample_size=n1+n2, mean_diff=mu1-mu2,
 #'                                                sig1=sig1, sig2=sig2, alloc.ratio=c(1,1), nsim=1e3)
 #' ks.test(alt.dist.samples$samples,
-#'         {(n1+n2 - 2) * k /(n1+n2 - k -1)}*rf(n=B, k, n1+n2-k-1,
+#'         {(n1+n2 - 2) * k /(n1+n2 - k -1)}*rf(n=1e3, k, n1+n2-k-1,
 #'           ncp = {(n1*n2)/(n1+n2)}*as.vector(crossprod(mu1-mu2, solve(sig1, mu1-mu2))) ) )
-#' }
-#' \dontrun{
+#'
+#'
 #' # Case 3: Alternate hypothesis is true. The mean difference is non-zero,
 #' # and the covariances of the two groups are different
 #' k <- 5
@@ -192,15 +190,14 @@ Sum_of_Wishart_df <- function(total_sample_size, alloc.ratio, sig1, sig2){
 #' sig1 <- diag(k); sig2 <- sig1 + del*toeplitz(c(1,rep(0.5, k-1)))
 #' alt.dist.samples <- Sim_HotellingT_unequal_var(total_sample_size=200, mean_diff=mu1-mu2,
 #' sig1=sig1, sig2=sig2, alloc.ratio=c(1,1), nsim=1e3)
-#'}
-#'\dontrun{
+#'
 #' # Generate samples with unequal allocation ratio:
 #' k <- 8
 #' mu1  <- rep(0,k); del  <- 0.4; mu2 <- mu1 + rep(del, k);
 #' sig1 <- diag(k); sig2 <- sig1 + del*toeplitz(c(1,rep(0.5, k-1)))
 #' alt.dist.samples <- Sim_HotellingT_unequal_var(total_sample_size=150, mean_diff=mu1-mu2,
 #' sig1=sig1, sig2=sig2, alloc.ratio=c(2,1), nsim=1e3)
-#'}
+#'
 Sim_HotellingT_unequal_var <- function(total_sample_size, mean_diff,
                                          sig1, sig2, alloc.ratio=c(1,1), nsim=1e4){
 
@@ -338,7 +335,7 @@ Sim_HotellingT_unequal_var <- function(total_sample_size, mean_diff,
 #' from the Hotelling T-statistic from empirical data.
 #' @export
 #' @examples
-#' \dontrun{
+#'
 #' B           <- 10000
 #' k           <- 4
 #' n2          <- 60
@@ -353,7 +350,7 @@ Sim_HotellingT_unequal_var <- function(total_sample_size, mean_diff,
 #' the_cdf     <- round(pHotellingT(cutoff, n1+n2, mu1 - mu2,
 #'                                  sig1, sig2, alloc.ratio=c(2,1),
 #'                                  lower.tail=FALSE),3)
-#' }
+#'
 pHotellingT <- function(q, total_sample_size, mean_diff,
                             sig1, sig2, alloc.ratio=c(1,1),
                             lower.tail=TRUE){

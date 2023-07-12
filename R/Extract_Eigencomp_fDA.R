@@ -29,7 +29,7 @@
 #' we made a duplicate version of that version where we write out the scoring part on our own.
 #' The new function is named as [fPASS::fpca.sc()], please check it out.
 #'
-#' ## Details on the specification of arguments.
+#' @section Specification of key arguments:
 #'
 #' If \code{obs.design$design == 'functional'} then a dense grid of length,
 #' specified by ngrid (typically 101/201) is internally created, and
@@ -197,7 +197,9 @@
 #' Vol. 15, 1395-1423} \cr
 #' \doi{https://doi.org/10.1214/21-EJS1802}.
 #' @examples
-#' \dontrun{
+#'
+#' # Example 1: Extract eigencomponents from stationary covariance.
+#'
 #' set.seed(12345)
 #' mean.diff <- function(t) {t};
 #' obs.design <- list("design" = "longitudinal",
@@ -211,12 +213,13 @@
 #' cov.par = list("var" = sigma2, "cor" = cor.str),
 #' sigma2.e = sigma2.e, nobs_per_subj = nobs_per_subj,
 #' missing_type = missing_type,
-#' missing_percent = missing_percent, eval_SS = 5000,
+#' missing_percent = missing_percent, eval_SS = 1000,
 #' alloc.ratio = c(1,1),
 #' fpca_method = "fpca.sc", data.driven.scores = FALSE,
 #' mean_diff_add_args = list(), fpca_optns = list(pve = 0.95))
-#' }
-#'\dontrun{
+#'
+#' # Example 2: Extract eigencomponents from non-stationary covariance.
+#'
 #' alloc.ratio  <- c(1,1)
 #' mean.diff    <- function(t) {1 * (t^3)};
 #' eig.fun <- function(t, k) { if (k==1) {
@@ -235,11 +238,11 @@
 #'  cov.type = "NS", cov.par = cov.par,
 #'  sigma2.e = sigma2.e, nobs_per_subj = nobs_per_subj,
 #'  missing_type = missing_type,
-#'  missing_percent = missing_percent, eval_SS = 5000,
+#'  missing_percent = missing_percent, eval_SS = 1000,
 #'  alloc.ratio = alloc.ratio,
 #'  fpca_method = "fpca.sc", data.driven.scores = FALSE,
 #'  mean_diff_add_args = list(), fpca_optns = list(pve = 0.95))
-#' }
+#'
 Extract_Eigencomp_fDA  <- function(nobs_per_subj, obs.design, mean_diff_fnm,
                                    cov.type = c("ST", "NS"), cov.par, sigma2.e,
                                    missing_type = c("nomiss", "constant"),

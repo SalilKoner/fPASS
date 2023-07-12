@@ -2,7 +2,7 @@ Package: fPASS
 Title: Power and Sample size for projection-based testing under a repeatedly measured design
 Version: 1.0.0
 Authors@R: c(
-    person("Salil", "Koner", email = "salil.koner@duke.edu", role = c("aut", "cre", "cph"),
+    person("Salil", "Koner", email = "salil.koner@duke.edu", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0003-1952-4210")),
     person("Sheng", "Luo", email = "sheng.luo@duke.edu", role = c("ctb", "fnd")))
 Description: Computes the power and sample size (PASS) required to test for the

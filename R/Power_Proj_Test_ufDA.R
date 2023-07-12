@@ -70,7 +70,7 @@
 #' \doi{https://doi.org/10.1214/21-EJS1802}.
 #' @export Power_Proj_Test_ufDA
 #' @examples
-#' \dontrun{
+#'
 #' ngrid          <- 101
 #' interval       <- c(-1,1)
 #' gauss.quad.pts <- gss::gauss.quad(ngrid,interval) # evaluation points
@@ -92,7 +92,7 @@
 #' mean_vector = mean_vector, eigen_matrix = eigen_matrix,
 #' scores_var1 = sig1, scores_var2= sig2, weights = gauss.quad.pts$wt,
 #' sig.level=alp, alloc.ratio = c(1,1), npc_to_pick=ncol(eigen_matrix))
-#' }
+#'
 Power_Proj_Test_ufDA <- function(total_sample_size, argvals,
                                  mean_vector, eigen_matrix,
                                  scores_var1, scores_var2, weights,

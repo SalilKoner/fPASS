@@ -59,8 +59,8 @@ See Details on the specification of arguments section below more details.}
 two groups at any given time. It must be supplied as character, so that \code{match.fun(mean_diff_fnm)}
 returns a valid function, that takes a vector input, and returns a vector of the same length of the input.}
 
-\item{cov.type}{The type of the covariance structure of the data, must be either of 'ST' or
-'NS'. This argument along with the \code{cov.par} argument must be
+\item{cov.type}{The type of the covariance structure of the data, must be either of 'ST' (stationary) or
+'NS' (non-stationary). This argument along with the \code{cov.par} argument must be
 specified compatibly to ensure that the function does not return an error. See the details
 of \code{cov.par} argument.}
 
@@ -70,7 +70,7 @@ must be specified a named list of two elements, \code{var} and \code{cor},
 where \code{var} is the common variance of the observations, which must be a
 positive number; and \code{cor} specifies the correlation structure between
 the observations. \code{cov.par$cor} must be specified in the form of the
-\link[nlme:corClasses]{nlme::corClasses} specified in R package \pkg{'nlme'}.
+\link[nlme:corClasses]{nlme::corClasses} specified in R package \pkg{nlme}.
 Check the package documentation for more details for each of the correlation classes.
 The \code{cov.par$cor} must be a \code{corStruct} class so it can be
 passed onto the \code{\link[nlme:corMatrix]{nlme::corMatrix()}} to extract the subject-specific covariance matrix.
@@ -175,7 +175,9 @@ functionality of the module is quite comprehensive and includes all the differen
 considered in the 'NCSS PASS (2023)' software. We believe that this software can be an effective
 clinical trial design tools when considering the projection-based test as the primary
 decision making method.
-\subsection{Details on the specification of arguments.}{
+}
+\section{Specification of key arguments}{
+
 
 If \code{obs.design$design == 'functional'} then a dense grid of length,
 specified by ngrid (typically 101/201) is internally created, and
@@ -201,10 +203,13 @@ in the \code{cov.par} and \code{mean_diff_fnm} parameter also scaled to
 take argument between [0, 1]. Also, it is imperative to say that \code{nobs_per_subj} must
 be of a scalar positive integer for \code{design == 'longitudinal'}.
 }
-}
+
 \examples{
 
-\dontrun{
+# Example 1: Power analysis for stationary exponential covariance.
+# Should return a power same as the size because
+# the true mean difference is zero.
+
 set.seed(12345)
 mean.diff <- function(t) {0*t};
 obs.design = list("design" = "longitudinal",
@@ -219,39 +224,15 @@ pow  <- PASS_Proj_Test_ufDA(sample_size = 100, target.power = NULL, sig.level = 
                             cov.par = list("var" = sigma2, "cor" = cor.str),
                             sigma2.e = sigma2.e, nobs_per_subj = nobs_per_subj,
                             missing_type = missing_type,
-                            missing_percent = missing_percent, eval_SS = 5000,
+                            missing_percent = missing_percent, eval_SS = 1000,
                             alloc.ratio = c(1,1),
                             fpca_method = "fpca.sc",
                             mean_diff_add_args = list(), fpca_optns = list("pve" = 0.95))
 
 pow$power_value
-}
-\dontrun{
-alloc.ratio  <- c(1,1)
-mean.diff    <- function(t) {1 * (t^3)};
-eig.fun <- function(t, k) {
-  if (k==1) ef <- sqrt(2)*sin(2*pi*t)
-  else if (k==2) ef <- sqrt(2)*cos(2*pi*t)
-  return(ef)}
-eig.fun.vec  <- function(t){cbind(eig.fun(t, 1),eig.fun(t, 2))}
-eigen.comp   <- list("eig.val" = c(1, 0.5), "eig.obj" = eig.fun.vec)
-obs.design   <- list(design = "functional", fun.domain = c(0,1))
-cov.par      <- list("cov.obj" = NULL, "eigen.comp" = eigen.comp)
-sigma2.e     <- 0.001; nobs_per_subj <- 4:7;
-missing_type <- "nomiss"; missing_percent <- 0;
-fpca_method  <- "fpca.sc"
-pow  <- PASS_Proj_Test_ufDA(sample_size = 100, target.power = NULL,
-                            sig.level = 0.05, obs.design = obs.design,
-                            mean_diff_fnm = "mean.diff", cov.type = "NS",
-                            cov.par = cov.par, sigma2.e = sigma2.e,
-                            nobs_per_subj = nobs_per_subj, missing_type = missing_type,
-                            missing_percent = missing_percent, eval_SS = 5000,
-                            alloc.ratio = alloc.ratio, fpca_method = "fpca.sc",
-                            mean_diff_add_args = list(), fpca_optns = list(pve = 0.95))
 
-pow$power_value
-}
-\dontrun{
+# Example 2: Sample size calculation for a non-stationary covariance:
+
 alloc.ratio  <- c(1,1)
 mean.diff    <- function(t) {1 * (t^3)};
 eig.fun <- function(t, k) {
@@ -270,12 +251,12 @@ pow  <- PASS_Proj_Test_ufDA(sample_size = NULL, target.power = 0.8,
                             mean_diff_fnm = "mean.diff", cov.type = "NS",
                             cov.par = cov.par, sigma2.e = sigma2.e,
                             nobs_per_subj = nobs_per_subj, missing_type = missing_type,
-                            missing_percent = missing_percent, eval_SS = 5000,
+                            missing_percent = missing_percent, eval_SS = 1000,
                             alloc.ratio = alloc.ratio, fpca_method = "fpca.sc",
                             mean_diff_add_args = list(), fpca_optns = list(pve = 0.95))
 
 pow$required_SS
-}
+
 }
 \references{
 Wang, Qiyao (2021)

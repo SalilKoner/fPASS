@@ -64,9 +64,7 @@ sample size in the two groups.
 See Koner and Luo (2023) for more details on the formula of the non-null distribution.
 }
 \examples{
-\dontrun{
-# In both the samples we assume that the covariances differ as the
-# mean vector between the two groups differ.
+
 # Case 1: Null hypothesis is true. True mean difference is zero, and the true
 # covariance of the two groups are same.
 k <- 5
@@ -78,8 +76,8 @@ null.dist.samples <- Sim_HotellingT_unequal_var(total_sample_size=n, mean_diff=m
 # and when the covariances are same, the distribution is exactly a
 # central F distribution with \eqn{k} and \eqn{n-k}  degrees of freedom.
 ks.test(null.dist.samples$samples, {{(n - 2) * k}/(n - k -1)} * {rf(n=1e3, k, n-k-1)} )
-}
-\dontrun{
+
+
 # Case 2: Alternate hypothesis is true. The mean difference is non-zero,
 # and the covariances of the two groups are same:
 k <- 6
@@ -89,10 +87,10 @@ n1 <- 100; n2 <- 100;
 alt.dist.samples <- Sim_HotellingT_unequal_var(total_sample_size=n1+n2, mean_diff=mu1-mu2,
                                                sig1=sig1, sig2=sig2, alloc.ratio=c(1,1), nsim=1e3)
 ks.test(alt.dist.samples$samples,
-        {(n1+n2 - 2) * k /(n1+n2 - k -1)}*rf(n=B, k, n1+n2-k-1,
+        {(n1+n2 - 2) * k /(n1+n2 - k -1)}*rf(n=1e3, k, n1+n2-k-1,
           ncp = {(n1*n2)/(n1+n2)}*as.vector(crossprod(mu1-mu2, solve(sig1, mu1-mu2))) ) )
-}
-\dontrun{
+
+
 # Case 3: Alternate hypothesis is true. The mean difference is non-zero,
 # and the covariances of the two groups are different
 k <- 5
@@ -100,15 +98,14 @@ mu1  <- rep(0,k); del  <- 0.25; mu2 <- mu1 + rep(del, k);
 sig1 <- diag(k); sig2 <- sig1 + del*toeplitz(c(1,rep(0.5, k-1)))
 alt.dist.samples <- Sim_HotellingT_unequal_var(total_sample_size=200, mean_diff=mu1-mu2,
 sig1=sig1, sig2=sig2, alloc.ratio=c(1,1), nsim=1e3)
-}
-\dontrun{
+
 # Generate samples with unequal allocation ratio:
 k <- 8
 mu1  <- rep(0,k); del  <- 0.4; mu2 <- mu1 + rep(del, k);
 sig1 <- diag(k); sig2 <- sig1 + del*toeplitz(c(1,rep(0.5, k-1)))
 alt.dist.samples <- Sim_HotellingT_unequal_var(total_sample_size=150, mean_diff=mu1-mu2,
 sig1=sig1, sig2=sig2, alloc.ratio=c(2,1), nsim=1e3)
-}
+
 }
 \references{
 Wang, Qiyao (2021)

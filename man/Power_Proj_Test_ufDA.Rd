@@ -85,7 +85,7 @@ under unequal variance. See Koner and Luo (2023) for more details on the
 formula of the non-null distribution.
 }
 \examples{
-\dontrun{
+
 ngrid          <- 101
 interval       <- c(-1,1)
 gauss.quad.pts <- gss::gauss.quad(ngrid,interval) # evaluation points
@@ -107,7 +107,7 @@ argvals=working.grid,
 mean_vector = mean_vector, eigen_matrix = eigen_matrix,
 scores_var1 = sig1, scores_var2= sig2, weights = gauss.quad.pts$wt,
 sig.level=alp, alloc.ratio = c(1,1), npc_to_pick=ncol(eigen_matrix))
-}
+
 }
 \references{
 Wang, Qiyao (2021)

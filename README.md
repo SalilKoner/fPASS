@@ -7,7 +7,7 @@
 <!-- [![Codecov test coverage](https://codecov.io/gh/r-lib/pkgdown/branch/main/graph/badge.svg)](https://app.codecov.io/gh/r-lib/pkgdown?branch=main) -->
 <!-- badges: end -->
 
-# fPASS: An R package for Power and Sample Size analysis (PASS) for Projection-based Two-Sample test for functional data.
+# fPASS: Power and Sample size for projection-based testing under a repeatedly measured design
 
 [Salil Koner](https://biostat.duke.edu/profile/salil-koner)
 
@@ -16,7 +16,7 @@ For further details about the testing procedure, please see [Wang
 [Koner and Luo (2023)](https://arxiv.org/abs/2302.05612) for the
 multivariate case.
 
-fPASS is designed to make it quick and easy software for randomized
+**fPASS** is designed to make it quick and easy software for randomized
 clinical trial simulation tool for determining treatment efficacy where
 the response collected under a longitudinal or functional design. The
 current development version of the package can be installed by running
@@ -35,7 +35,20 @@ the following.
 
 ``` r
 # Install development version from GitHub
-devtools::install_github("SalilKoner/fPASS", build_vignettes = TRUE) # Vignettes takes about 20 minutes to run. 
+devtools::install_github("SalilKoner/fPASS") # Vignettes takes about 20 minutes to run. 
 ```
 
 </div>
+
+## Vignettes
+
+If you want to install the package with the vignettes to be built, then
+run
+
+``` r
+# Install development version from GitHub
+devtools::install_github("SalilKoner/fPASS", build_vignettes = TRUE) # Vignettes takes about 20 minutes to run. 
+```
+
+followed by `browseVignettes("fPASS")` to see the application of the
+package in real life case studies.
