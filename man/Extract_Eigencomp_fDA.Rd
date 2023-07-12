@@ -106,12 +106,12 @@ estimated based on the allocation of the samples in each group. Must be given as
 length 2. Default value is set at \code{c(1, 1)}, indicating equal sample size.}
 
 \item{fpca_method}{The method by which the FPCA is computed. Must be one of
-\code{'fpca.sc'} and \code{'face'}. If \code{fpca_method == 'fpca.sc'} then the eigencomponents
+'fpca.sc' and 'face'. If \code{fpca_method == 'fpca.sc'} then the eigencomponents
 are estimated using the function \code{\link[refund:fpca.sc]{refund::fpca.sc()}}. However, since the \code{\link[refund:fpca.sc]{refund::fpca.sc()}}
 function fails to estimate the correct \code{shrinkage} scores, and throws \code{NA} values
 when the measurement errors is estimated to be zero, we wrote out a similar function
 where we corrected those error in current version of \code{\link[refund:fpca.sc]{refund::fpca.sc()}}. Check out
-the \code{\link[=fpca.sc]{fpca.sc()}} function for details. If \code{fpca_method == 'face'}, then
+the \code{\link[=fpca_sc]{fpca_sc()}} function for details. If \code{fpca_method == 'face'}, then
 the eigencomponents are estimated using \code{\link[face:face.sparse]{face::face.sparse()}} function.}
 
 \item{data.driven.scores}{Indicates whether the scores are estimated from the full data, WITHOUT
@@ -121,7 +121,7 @@ assuming the mean function is unknown, rather the mean function is estimated usi
 \item{mean_diff_add_args}{Additional arguments to be passed to group difference
 function specified in the argument \code{mean_diff_fnm}.}
 
-\item{fpca_optns}{Additional options to be passed onto either of \code{\link[=fpca.sc]{fpca.sc()}}
+\item{fpca_optns}{Additional options to be passed onto either of \code{\link[=fpca_sc]{fpca_sc()}}
 or \code{\link[face:face.sparse]{face::face.sparse()}} function in order
 to estimate the eigencomponents. It must be a named list with elements
 to be passed onto the respective function, depending on the \code{fpca_method}.
@@ -141,7 +141,7 @@ A list with the elements listed below.
 \item \code{weights} - The Gaussian quadrature weights obtained from \code{\link[gss:gauss.quad]{gss::gauss.quad()}}
 to compute the projection \eqn{\int [\mu_1(t) - \mu_2(t)]\phi_k(t) \,dt},
 for each \eqn{k=1,\dots, K}.
-\item \code{fpcCall} - The exact call of either of the \code{\link[=fpca.sc]{fpca.sc()}} or \code{\link[face:face.sparse]{face::face.sparse()}}
+\item \code{fpcCall} - The exact call of either of the \code{\link[=fpca_sc]{fpca_sc()}} or \code{\link[face:face.sparse]{face::face.sparse()}}
 used to compute the eigencomponents.
 \item \code{scores_var1} - Estimated covariance of the \code{shrinkage} scores for the treatment group.
 \item \code{scores_var2} - Estimated covariance of the \code{shrinkage} scores for the placebo group.
@@ -182,8 +182,8 @@ large number of subjects, and estimate the eigenfunctions and the covariance of 
 two most commonly used softwares for fPCA in the functional data literature, \code{\link[refund:fpca.sc]{refund::fpca.sc()}}
 and \code{\link[face:face.sparse]{face::face.sparse()}}. However, since the \code{\link[refund:fpca.sc]{refund::fpca.sc()}} do not compute the \code{shrinkage}
 scores correctly, especially when the measurement error variance is estimated to be zero,
-we made a duplicate version of that version where we write out the scoring part on our own.
-The new function is named as \code{\link[=fpca.sc]{fpca.sc()}}, please check it out.
+we made a duplicate version of that function in our package, where we write out
+the scoring part on our own. The new function is named as \code{\link[=fpca_sc]{fpca_sc()}}, please check it out.
 }
 \section{Specification of key arguments}{
 
@@ -193,7 +193,7 @@ specified by ngrid (typically 101/201) is internally created, and
 the observation points will be randomly chosen from them.
 The time points could also randomly chosen between
 any number between the interval, but then for large number of subject,
-\code{\link[=fpca.sc]{fpca.sc()}} function will take huge
+\code{\link[=fpca_sc]{fpca_sc()}} function will take huge
 time to estimate the eigenfunction. For dense design, the user must set
 a large value of the argument \code{nobs_per_subj} and for sparse (random) design,
 \code{nobs_per_subj} should be set small (and varying).

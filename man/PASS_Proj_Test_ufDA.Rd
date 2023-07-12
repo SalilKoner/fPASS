@@ -119,18 +119,18 @@ estimated based on the allocation of the samples in each group. Must be given as
 length 2. Default value is set at \code{c(1, 1)}, indicating equal sample size.}
 
 \item{fpca_method}{The method by which the FPCA is computed. Must be one of
-\code{'fpca.sc'} and \code{'face'}. If \code{fpca_method == 'fpca.sc'} then the eigencomponents
+'fpca.sc' and 'face'. If \code{fpca_method == 'fpca.sc'} then the eigencomponents
 are estimated using the function \code{\link[refund:fpca.sc]{refund::fpca.sc()}}. However, since the \code{\link[refund:fpca.sc]{refund::fpca.sc()}}
 function fails to estimate the correct \code{shrinkage} scores, and throws \code{NA} values
 when the measurement errors is estimated to be zero, we wrote out a similar function
 where we corrected those error in current version of \code{\link[refund:fpca.sc]{refund::fpca.sc()}}. Check out
-the \code{\link[=fpca.sc]{fpca.sc()}} function for details. If \code{fpca_method == 'face'}, then
+the \code{\link[=fpca_sc]{fpca_sc()}} function for details. If \code{fpca_method == 'face'}, then
 the eigencomponents are estimated using \code{\link[face:face.sparse]{face::face.sparse()}} function.}
 
 \item{mean_diff_add_args}{Additional arguments to be passed to group difference
 function specified in the argument \code{mean_diff_fnm}.}
 
-\item{fpca_optns}{Additional options to be passed onto either of \code{\link[=fpca.sc]{fpca.sc()}}
+\item{fpca_optns}{Additional options to be passed onto either of \code{\link[=fpca_sc]{fpca_sc()}}
 or \code{\link[face:face.sparse]{face::face.sparse()}} function in order
 to estimate the eigencomponents. It must be a named list with elements
 to be passed onto the respective function, depending on the \code{fpca_method}.
@@ -184,7 +184,7 @@ specified by ngrid (typically 101/201) is internally created, and
 the observation points will be randomly chosen from them.
 The time points could also randomly chosen between
 any number between the interval, but then for large number of subject,
-\code{\link[=fpca.sc]{fpca.sc()}} function will take huge
+\code{\link[=fpca_sc]{fpca_sc()}} function will take huge
 time to estimate the eigenfunction. For dense design, the user must set
 a large value of the argument \code{nobs_per_subj} and for sparse (random) design,
 \code{nobs_per_subj} should be set small (and varying).

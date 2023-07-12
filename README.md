@@ -11,10 +11,13 @@
 
 [Salil Koner](https://biostat.duke.edu/profile/salil-koner)
 
-For further details about the testing procedure, please see [Wang
-(2021)](https://doi.org/10.1214/21-EJS1802) for the univariate case, and
-[Koner and Luo (2023)](https://arxiv.org/abs/2302.05612) for the
-multivariate case.
+The details of the power and sample size formula and the relevant
+computational details are documented in the
+[manuscript](https://salilkoner.github.io/assets/PASS_manuscript.pdf).
+The users are encourage to see [Wang
+(2021)](https://doi.org/10.1214/21-EJS1802) and [Koner and Luo
+(2023)](https://arxiv.org/abs/2302.05612) for further details about the
+testing procedure.
 
 **fPASS** is designed to make it quick and easy software for randomized
 clinical trial simulation tool for determining treatment efficacy where

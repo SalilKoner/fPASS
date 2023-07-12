@@ -26,8 +26,8 @@
 #' two most commonly used softwares for fPCA in the functional data literature, [refund::fpca.sc()]
 #' and [face::face.sparse()]. However, since the [refund::fpca.sc()] do not compute the `shrinkage`
 #' scores correctly, especially when the measurement error variance is estimated to be zero,
-#' we made a duplicate version of that version where we write out the scoring part on our own.
-#' The new function is named as [fPASS::fpca.sc()], please check it out.
+#' we made a duplicate version of that function in our package, where we write out
+#' the scoring part on our own. The new function is named as [fPASS::fpca_sc()], please check it out.
 #'
 #' @section Specification of key arguments:
 #'
@@ -36,7 +36,7 @@
 #' the observation points will be randomly chosen from them.
 #' The time points could also randomly chosen between
 #' any number between the interval, but then for large number of subject,
-#' [fPASS::fpca.sc()] function will take huge
+#' [fPASS::fpca_sc()] function will take huge
 #' time to estimate the eigenfunction. For dense design, the user must set
 #' a large value of the argument \code{nobs_per_subj} and for sparse (random) design,
 #' \code{nobs_per_subj} should be set small (and varying).
@@ -143,19 +143,19 @@
 #' estimated based on the allocation of the samples in each group. Must be given as vector of
 #' length 2. Default value is set at \code{c(1, 1)}, indicating equal sample size.
 #' @param fpca_method The method by which the FPCA is computed. Must be one of
-#' `'fpca.sc'` and `'face'`. If \code{fpca_method == 'fpca.sc'} then the eigencomponents
+#' 'fpca.sc' and 'face'. If \code{fpca_method == 'fpca.sc'} then the eigencomponents
 #' are estimated using the function [refund::fpca.sc()]. However, since the [refund::fpca.sc()]
 #' function fails to estimate the correct `shrinkage` scores, and throws \code{NA} values
 #' when the measurement errors is estimated to be zero, we wrote out a similar function
 #' where we corrected those error in current version of [refund::fpca.sc()]. Check out
-#' the [fPASS::fpca.sc()] function for details. If \code{fpca_method == 'face'}, then
+#' the [fPASS::fpca_sc()] function for details. If \code{fpca_method == 'face'}, then
 #' the eigencomponents are estimated using [face::face.sparse()] function.
 #' @param data.driven.scores Indicates whether the scores are estimated from the full data, WITHOUT
 #'        assuming the mean function is unknown, rather the mean function is estimated using
 #'        [mgcv::gam()] function.
 #' @param mean_diff_add_args Additional arguments to be passed to group difference
 #'                           function specified in the argument \code{mean_diff_fnm}.
-#' @param fpca_optns Additional options to be passed onto either of [fPASS::fpca.sc()]
+#' @param fpca_optns Additional options to be passed onto either of [fPASS::fpca_sc()]
 #'                  or [face::face.sparse()] function in order
 #'                   to estimate the eigencomponents. It must be a named list with elements
 #'                   to be passed onto the respective function, depending on the \code{fpca_method}.
@@ -173,7 +173,7 @@
 #' \item \code{weights} - The Gaussian quadrature weights obtained from [gss::gauss.quad()]
 #' to compute the projection \eqn{\int [\mu_1(t) - \mu_2(t)]\phi_k(t) \,dt},
 #' for each \eqn{k=1,\dots, K}.
-#' \item \code{fpcCall} - The exact call of either of the [fPASS::fpca.sc()] or [face::face.sparse()]
+#' \item \code{fpcCall} - The exact call of either of the [fPASS::fpca_sc()] or [face::face.sparse()]
 #' used to compute the eigencomponents.
 #' \item \code{scores_var1} - Estimated covariance of the `shrinkage` scores for the treatment group.
 #' \item \code{scores_var2} - Estimated covariance of the `shrinkage` scores for the placebo group.
@@ -418,7 +418,7 @@ Extract_Eigencomp_fDA  <- function(nobs_per_subj, obs.design, mean_diff_fnm,
   # argument checking: fpca_options
   if (fpca_method == "fpca.sc"){
     fpca_mandatory_args_names <- list("ydata", "Y.pred", "center")
-    fpca_args_all <- rlang::fn_fmls_names(fpca.sc)
+    fpca_args_all <- rlang::fn_fmls_names(fpca_sc)
   } else {
     fpca_mandatory_args_names <- c("data", "newdata", "center", "argvals.new", "calculate.scores")
     fpca_args_all  <- rlang::fn_fmls_names(face::face.sparse)
@@ -545,12 +545,12 @@ Extract_Eigencomp_fDA  <- function(nobs_per_subj, obs.design, mean_diff_fnm,
     est_scores     <- fpcObj$rand_eff$scores
     est_eigenval   <- fpcObj$eigenvalues
   } else{
-    # renaming the dataset for for fpca.sc function
+    # renaming the dataset for for fpca_sc function
     fuldat_c       <- fuldat_c %>% dplyr::rename(.id = subj, .index = argvals, .value = y)
     fuldat         <- fuldat %>% dplyr::rename(.id = subj, .index = argvals, .value = y)
     fpca_mandatory_args <- list("ydata" = quote(fuldat_c), "Y.pred" = quote(irreg2mat(fuldat)), "center" = FALSE)
     fpca_args      <- c(fpca_mandatory_args[setdiff(names(fpca_mandatory_args), names(fpca_optns))], fpca_optns)
-    fpcCall        <- rlang::call2("fpca.sc", !!!fpca_args)
+    fpcCall        <- rlang::call2("fpca_sc", !!!fpca_args)
     fpcObj         <- eval(fpcCall)
     est_eigenfun   <- matrix(NA, nrow = length(working.grid), ncol = ncol(fpcObj$efunctions))
     for (col in 1:ncol(fpcObj$efunctions)){
