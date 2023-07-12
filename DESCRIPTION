@@ -1,13 +1,11 @@
 Package: fPASS
-Title: Power and Sample size (PASS) calculation
-                         for two sample projection-based testing of group difference
-                         under a repeatedly measured longitudinal or sparsely functional design
+Title: Power and Sample size for projection-based testing under a repeatedly measured design
 Version: 1.0.0
 Authors@R: c(
-    person("Salil", "Koner", email = "salil.koner@duke.edu", role = c("aut", "cre"),
+    person("Salil", "Koner", email = "salil.koner@duke.edu", role = c("aut", "cre", "cph"),
            comment = c(ORCID = "0000-0003-1952-4210")),
     person("Sheng", "Luo", email = "sheng.luo@duke.edu", role = c("ctb", "fnd")))
-Description: Computes the Power and Sample size required to test for the
+Description: Computes the power and sample size (PASS) required to test for the
     difference in the mean function between two groups under a repeatedly measured longitudinal or or sparse functional design. See
     Wang (2021) <https://doi.org/10.1214/21-EJS1802> and Koner and Luo (2023) <https://arxiv.org/abs/2302.05612> for details of the testing procedure. 
 License: MIT + file LICENSE

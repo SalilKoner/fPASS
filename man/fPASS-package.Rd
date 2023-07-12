@@ -32,7 +32,7 @@ See the primary function \code{\link[=PASS_Proj_Test_ufDA]{PASS_Proj_Test_ufDA()
 the power and sample size of the test.
 }
 \author{
-\strong{Maintainer}: Salil Koner \email{salil.koner@duke.edu} (\href{https://orcid.org/0000-0003-1952-4210}{ORCID})
+\strong{Maintainer}: Salil Koner \email{salil.koner@duke.edu} (\href{https://orcid.org/0000-0003-1952-4210}{ORCID}) [copyright holder]
 
 Other contributors:
 \itemize{
