@@ -41,7 +41,7 @@ obtained by approximation of the sum of two Wishart distribution under unequal v
 }
 }
 \description{
-\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#stable}{\figure{lifecycle-stable.svg}{options: alt='[Stable]'}}}{\strong{[Stable]}}
 
 The function \code{Sim_HotellingT_unequal_var()} generates samples from the
 (non-null) distribution of the two-sample Hotelling-\eqn{T^2} statistic

@@ -2,7 +2,7 @@
 #' eigencomponents.
 #'
 #' @description
-#' `r lifecycle::badge("experimental")`
+#' `r lifecycle::badge("stable")`
 #'
 #' @description
 #' The function `Power_Proj_Test_ufDA()` computes the power of
@@ -171,7 +171,6 @@ Power_Proj_Test_ufDA <- function(total_sample_size, argvals,
   sig2           <- scores_var2[1:npc_to_pick,  1:npc_to_pick, drop=FALSE]
   critical.value <- {{(total_sample_size - 2)*npc_to_pick}/(total_sample_size - npc_to_pick -1)}*
                        qf(1-sig.level, npc_to_pick, total_sample_size-npc_to_pick-1)
-
   pHotellingT(q=critical.value, total_sample_size=total_sample_size, mean_diff=projection,
               sig1=sig1, sig2=sig2, alloc.ratio=alloc.ratio, lower.tail=FALSE)
 }

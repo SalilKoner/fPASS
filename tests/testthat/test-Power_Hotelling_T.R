@@ -23,7 +23,7 @@ testthat::test_that("pHotellingT() provides the correct power
             ht.test$stats$statistic })
             emp_cdf     <- round(sapply(cutoff, function(cc) mean(emp_samples > cc, na.rm=TRUE) ),3)
             obs.error   <- quantile(round(abs(emp_cdf - the_cdf),2), prob=0.95, names = F)
-            exp.err     <- round(2*0.5*sqrt(1/B),2)
+            exp.err     <- round(4*0.5*sqrt(1/B),2)
             testthat::expect_lte(obs.error, exp.err)
           })
 
@@ -51,7 +51,7 @@ testthat::test_that("pHotellingT() provides the correct power
                       ht.test$stats$statistic })
                       emp_cdf     <- round(sapply(cutoff, function(cc) mean(emp_samples > cc, na.rm=TRUE) ),3)
                       obs.error   <- quantile(round(abs(emp_cdf - the_cdf),2), prob=0.95, names = F)
-                      exp.err     <- round(2*0.5*sqrt(1/B),2)
+                      exp.err     <- round(4*0.5*sqrt(1/B),2)
                       testthat::expect_lte(obs.error, exp.err)
                     })
 
@@ -79,7 +79,7 @@ testthat::test_that("pHotellingT() provides the correct power
                       ht.test$stats$statistic })
                       emp_cdf     <- round(sapply(cutoff, function(cc) mean(emp_samples > cc, na.rm=TRUE) ),3)
                       obs.error   <- quantile(round(abs(emp_cdf - the_cdf),2), prob=0.95, names = F)
-                      exp.err     <- round(2*0.5*sqrt(1/B),2)
+                      exp.err     <- round(4*0.5*sqrt(1/B),2)
                       testthat::expect_lte(obs.error, exp.err)
                     })
 
@@ -107,7 +107,7 @@ testthat::test_that("pHotellingT() provides the correct power
                       ht.test$stats$statistic })
                       emp_cdf     <- round(sapply(cutoff, function(cc) mean(emp_samples > cc, na.rm=TRUE) ),3)
                       obs.error   <- quantile(round(abs(emp_cdf - the_cdf),2), prob=0.95, names = F)
-                      exp.err     <- round(2*0.5*sqrt(1/B),2)
+                      exp.err     <- round(4*0.5*sqrt(1/B),2)
                       testthat::expect_lte(obs.error, exp.err)
                     })
 

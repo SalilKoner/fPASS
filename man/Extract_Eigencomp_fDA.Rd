@@ -37,7 +37,7 @@ specifying schedule of visits (in months or days or any unit of time), other tha
 and \code{visit.window} denoting the maximum time window for every visit.
 For functional design (where the observation points are either densely observed within a
 compact interval or under a sparse random design), the argument must be provided
-as a named list with elements\code{design} and \code{fun.domain}, where
+as a named list with elements \code{design} and \code{fun.domain}, where
 \code{obs.design$design} must be specified as \code{'functional'} and \code{obs.design$fun.domain}
 must be specified as a two length vector indicating the domain of the function.
 See Details on the specification of arguments section below more details.}
@@ -87,6 +87,7 @@ missing percentage at every time point. The current version of package only supp
 \code{missing_type = 'constant'}.}
 
 \item{missing_percent}{The percentage of missing at each observation points for each subject.
+Must be supplied as number between [0, 0.8], as missing percentage more than 80\% is not practical.
 If \code{nobs_per_subj} is supplied as vector, then \code{missing_type}
 is forced to set as \code{'nomiss'} and \code{missing_percent = 0}, because
 the \code{missing_type = 'constant'} has no meaning if the number of observations are
@@ -102,7 +103,7 @@ and that the sampling design will not have much effect on the loss of precision.
 will still be estimated based on the total sample_size, however, the variance
 of the \code{shrinkage} scores (which is required to compute the power function) will be
 estimated based on the allocation of the samples in each group. Must be given as vector of
-length 2. Default value is set at \code{c(1,1)}, indicating equal sample size.}
+length 2. Default value is set at \code{c(1, 1)}, indicating equal sample size.}
 
 \item{fpca_method}{The method by which the FPCA is computed. Must be one of
 \code{'fpca.sc'} and \code{'face'}. If \code{fpca_method == 'fpca.sc'} then the eigencomponents
@@ -123,14 +124,18 @@ function specified in the argument \code{mean_diff_fnm}.}
 \item{fpca_optns}{Additional options to be passed onto either of \code{\link[=fpca.sc]{fpca.sc()}}
 or \code{\link[face:face.sparse]{face::face.sparse()}} function in order
 to estimate the eigencomponents. It must be a named list with elements
-to be passed onto the respective function, depending on the \code{fpca_method}.}
+to be passed onto the respective function, depending on the \code{fpca_method}.
+The names of the list must not match either of
+\code{c('data', 'newdata', 'argvals.new')}
+for \code{fpca_method == 'face'} and must not match either of
+\code{c('ydata', 'Y.pred')} for  \code{fpca_method == 'fpca.sc'}.}
 }
 \value{
 A list with the elements listed below.
 \enumerate{
 \item \code{mean_diff_vec} - The evaluation of the mean function at the working grid.
 \item \code{est_eigenfun} - The evaluation of the estimated eigenfunctions at the working grid.
-\item \code{est_eigval} - Estimated eigen values.
+\item \code{est_eigenval} - Estimated eigen values.
 \item \code{working.grid} - The grid points at which \code{mean_diff_vec} and
 \code{est_eigenfun} are evaluated.
 \item \code{weights} - The Gaussian quadrature weights obtained from \code{\link[gss:gauss.quad]{gss::gauss.quad()}}
@@ -155,7 +160,7 @@ user can directly input the output obtained from this function into the argument
 and \code{\link[=Power_Proj_Test_ufDA]{Power_Proj_Test_ufDA()}} together.
 }
 \description{
-\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#stable}{\figure{lifecycle-stable.svg}{options: alt='[Stable]'}}}{\strong{[Stable]}}
 
 The function \code{Extract_Eigencomp_fDA()} computes the eigenfunctions and the
 covariance of the shrinkage scores required to conduct
@@ -197,12 +202,12 @@ the time points must be accordingly specified
 in the argument \code{obs.design$visit.schedule}. The length of \code{obs.design$visit.schedule}
 must match \code{length(nobs_per_subj)-1}. Internally, when
 \code{obs.design$design == 'longitudinal'}, the function scale the visit times
-so that it lies between \eqn{[0,1]}, so the user should not
+so that it lies between [0, 1], so the user should not
 specify any element named \code{fun.domain} in the
 list for \code{obs.design$design == 'longitudinal'}. Make sure that
 the mean function and the covariance function specified
 in the \code{cov.par} and \code{mean_diff_fnm} parameter also scaled to
-take argument between \eqn{[0,1]}. Also, it is imperative to say that \code{nobs_per_subj} must
+take argument between [0, 1]. Also, it is imperative to say that \code{nobs_per_subj} must
 be of a scalar positive integer for \code{design == 'longitudinal'}.
 }
 }

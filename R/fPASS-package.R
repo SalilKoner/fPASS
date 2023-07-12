@@ -19,7 +19,6 @@
 #' the power and sample size of the test.
 ## usethis namespace: start
 #' @docType package
-#' @importFrom lifecycle deprecated
 #' @importFrom utils globalVariables
 #' @name fPASS-package
 ## usethis namespace: end

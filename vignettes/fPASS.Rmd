@@ -1,8 +1,8 @@
 ---
-title: "fPASS"
+title: "fPASS: An R package for Power and Sample Size analysis (PASS) for Projection-based Two-Sample test for functional data."
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{fPASS}
+  %\VignetteIndexEntry{fPASS: An R package for Power and Sample Size analysis (PASS) for Projection-based Two-Sample test for functional data.}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -11,31 +11,262 @@ vignette: >
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
+  eval=FALSE
 )
+#options(rmarkdown.html_vignette.check_title = FALSE)
 ```
 
-This document will present a elaborate understanding of the [fPASS](https://salilkoner.github.io/fPASS/) R package and its capabilities. First we need to load the
+This document will present a elaborate understanding of the `fPASS` R package and its capabilities. First we need to load the current development version of the package using the following code. The package is designed to conduct for Power and Sample Size analysis (PASS) for Projection-based Two-Sample test for functional data. Please see [Wang (2021)](https://doi.org/10.1214/21-EJS1802) and [Koner and Luo (2023)](https://arxiv.org/abs/2302.05612) for the details of the testing procedure and its advantage over the current state-of-the-art testing procedures used for longitudinal data such as mixed model and GEE.
 
 ## Installation
-
-<!-- ::: .pkgdown-release -->
-<!-- ```{r, eval = FALSE} -->
-<!-- # Install released version from CRAN -->
-<!-- install.packages("pkgdown") -->
-<!-- ``` -->
-<!-- ::: -->
 
 ::: .pkgdown-devel
 ```{r, eval = FALSE}
 # Install development version from GitHub
-devtools::install_github("SalilKoner/fPASS")
+devtools::install_github("SalilKoner/fPASS", build_vignettes = FALSE)
 ```
 :::
 
 ## Usage
-Get started with [fPASS](https://salilkoner.github.io/fPASS/):
 
 ```{r setup, message=FALSE}
 library(fPASS)
 ```
+
+The key function to use for finding the power and sample size (PASS) for the test is `fPASS::PASS_Proj_Test_ufDA()`. In the following, we will see how the function can be used to conduct PASS for the Projection-based test for longitudinal and functional data under different covariance structure in order to design a randomized clinical trials. We will present the examples of using the function with different case studies. 
+
+### Case study 1: Longitudinal data with a specific visit times. 
+
+Suppose that we want to conduct a clinical trial to test the efficacy of a treatment effect against placebo, where the visit times for each subjects are at baseline, 3 months, 6 months, and every 6 months thereafter for 24 months. Assume that for each visit (except for the baseline), there is an window of 15 days around the stipulated visit time when the patients can appear to the clinic. This means that, a patient can come to the clinic for third visit around $5.5 - 6.5$ months from baseline. Assuming that the higher the response, the better is the treatment, it is hypothesized that the effect size (mean to variance ratio) between the treatment and placebo will be $1$ unit each year, and the treatment effect follows a linear trend. Further, it is assumed that the longitudinal response trajectory for each subject has a marginal standard deviation about 5 units at each visit time and assumes a dying correlation which can be characterized a conditional auto regressive process with correlation parameter $0.5$. Suppose that after collection of data, we want to use the [Two-sample projection-based test by Wang (2021)](https://doi.org/10.1214/21-EJS1802) to assess the treatment efficacy. Assuming that we can have equal number of subjects in each of the treatment and the placebo group, we want to find the minimum sample size required to test the treatment efficacy with a power of $80\%$ at a significance level of $5\%$, using the routine `fPASS::PASS_Proj_Test_ufDA()`. 
+
+#### Argument specifiction for `fPASS::PASS_Proj_Test_ufDA()`
+
+The argument of the function can be obtained by running `?fPASS::PASS_Proj_Test_ufDA()` in R. The key arguments of are `mean_diff_fnm` denoting the group difference function, `obs.design` specifying the observation design and `cov.par` specifying the covariance structure of the latent trajectory.  We will demonstrate how to supply each of the parameters in the function from the statement of the problem. 
+
+* `obs.design` and `nobs_per_subj` : The number of observation points for each subject are pre-determined, and they are not randomly varying among each other. This constitutes that it falls under `longitudinal` design, and the visit times are $0, 3, 6, 12, 18$ and $24$ months with a window of $0.5$ months for each visit other than baseline. The `obs.design` argument should be set as
+
+```{r, eval=TRUE}
+obs.design <- list("design" = "longitudinal",
+                  "visit.schedule" = c(3,6,12,18,24), # pre-determined visit times, other than baseline
+                  "visit.window" = 0.5) # visit window
+nobs_per_subj <- length(obs.design$visit.schedule) + 1 # number of observation per subject is 6.
+```
+
+* `cov.par` and `cov.type` : The conditional auto regressive process with correlation parameter $0.5$ can be characterized by the `nlme::corCAR1()` structure available in `nlme::corClasses`. Therefore, we can characterize the correlation as
+
+```{r, eval=TRUE}
+# The function will internally create a data set
+# and a factor variable Subject denoting subject id.
+# You can change time and Subject by any other name as well.
+cor.str <- nlme::corCAR1(0.5, form = ~ time | Subject);
+# The marginal sd at each time-point is assumed to be 5. 
+cov.par  <- list("var" = 25, "cor" = cor.str) 
+# We must set cov.type = "ST" for any covariance 
+# structure belonging to nlme::corClasses. 
+cov.type <- "ST"
+```
+
+* `mean_diff_fnm` :  Assuming that the group difference function has a linear trend, and that the group difference is 1 unit every year, which means the group difference is 4 unit after two years (24 months). As mentioned in the details in the argument section, internally, the function scales the specified visit times into $[0,1]$, so that baseline is 0 and 24 months is 1, therefore, the mean function can be written as
+
+```{r, eval=TRUE}
+mean_diff_fn  <- function(t){2*t}
+mean_diff_fnm <- "mean_diff_fn" # the name of mean difference function needs to
+                                # be specified with the argument. 
+```
+
+* `missing_type` and `missing_percent` : We assume no missing observation at each visit, so we will set the missing value related parameters as follows:
+
+```{r, eval=TRUE}
+missing_type <- "nomiss"
+missing_percent <- 0 # Has be to a number between 0 and 0.8
+```
+
+* `alloc.ratio` : Assuming that we have an equal allocation ratio of the samples in each group, 
+
+```{r, eval=TRUE}
+alloc.ratio <- c(1,1)
+```
+
+* `target.power` and `sig.level` : We want to find the sample size required to achieve a power of $80\%$ of test at significance level $5\%$, 
+```{r, eval=TRUE}
+target.power <- 0.8
+sig.level  <- 0.05
+```
+
+* `eval_SS` : The number of independent and identically distributed (i.i.d) replication of subjects based on which the eigencomponents of the covariance process will be estimated empirically. This should be set as a large number in order to correctly estimate the true number of eigenfunctions and to get enough precision on the estimated eigencomponents. Setting a small value of `eval_SS` might lead to incorrect detection of large number of eigenfunctions, and then the power of the projection-based test will incorrectly inflated because the dimension and the magnitude of projection-vector gets arbitrarily large, as a result of projecting the mean difference function on additionally detected eigenfunctions (possibly with very small eigenvalues). Users must remember that the **computation time of the function is directly proportional to the size of `eval_SS`, so they must expect that the run time will be higher if `eval_SS` is larger, especially when `fpca.method` is set as 'face'**, which is described next item. 
+
+```{r, eval=TRUE}
+eval_SS <- 10000
+```
+
+* `fpca_method` : The module for functional principal component analysis that will be used to estimate the eigencomponents, can be any one of
+'fpca.sc', in which case `fPASS::fpca.sc()` to be used or 'face' for `face::face.sparse` function to be used as the primary eigenfunction estimation routine. Note that, `fPASS::fpca.sc()` is just a copy of `refund::fpca.sc()` routine, except here the `shrinkage` scores (Yao et. al. 2005, JASA) are correctly estimated, and the issue of `NA` value for the scores when the measurement error variance are estimated to be zero, are corrected. 
+
+```{r, eval=TRUE}
+fpca_method <- "fpca.sc"
+```
+
+* `sigma2.e` : Set a small but non-zero measurement error to ensure nugget effect and stability in inversion of covariance
+
+```{r, eval=TRUE}
+sigma2.e <- 0.0001
+```
+
+*  `fpca_optns` : The argument `fpca_optns` must be a named list with elements that could specified as arguments of either of `fPASS::fpca.sc()` function or  `face::face.sparse()` depending on the choice of the argument `fpca_optns`. For example, the default value of `pve` argument is $0.99$, but the user can overwrite by setting it as follows. See the details of argument in the help page for what are compatible names for the elements in the list. A higher value of percentage of variation explained might lead to detection of extra eigenfunctions with close to zero eigenvalues, which might lead to inflated power of the test for fixed sample size. 
+
+```{r, eval=TRUE}
+fpca_optns  <- list("pve" = 0.95) 
+```
+
+*  `mean_diff_add_args` : The user can specify any additional parameter in form of a named list that might need to be specified in the mean different function specified in the argument `mean_diff_fnm`. In this case, there is nothing, so it will be specified as an empty list as follows:
+
+```{r, eval=TRUE}
+mean_diff_add_args  <- list() 
+```
+
+#####  Distribution of minimum sample size using `fPASS::fpca.sc()` function:
+
+Now that we have explained how to specify each and every arguments of `fPASS::PASS_Proj_Test_ufDA()` function, we will compute the minimum sample size required. However, as the testing procedure internally computes the eigenfunctions based on large number of samples and then uses the estimated eigenfunctions to compute the PASS, the computed power and the minimum sample size will be different due to the fact that the estimated eigenfunctions are different at each run because of sampling variation. Therefore, it is important to run the function `fPASS::PASS_Proj_Test_ufDA()` for few iterations to see how the sampling variation affects the computed power or sample size. In this example, we run the same function in parallel for about 100 times, and present the percentiles of the estimated sample size. It is recommended to use the median of these computed sample sizes obtained after 100 runs, as a point estimate of the minimum sample size and the interquartile range (IQR) as a valid measure of range of the sample size that could be considered. From a practical perspective, depending on the budget of the trial, one can choose the minimum number of subjects that will be enrolled for the trial based on the value of IQR.
+
+```{r, eval=FALSE, message=FALSE}
+library(foreach)
+library(doParallel)
+cl <- makeCluster(8)
+registerDoParallel(cl)
+required_sample_size <- foreach(i=1:20, .combine='c', .packages = "fPASS") %dopar% {
+        mean_diff_fn <- mean_diff_fn
+        PASS_Proj_Test_ufDA(sample_size = NULL, target.power = target.power,
+                            sig.level = sig.level, nobs_per_subj = nobs_per_subj,
+                            obs.design = obs.design, mean_diff_fnm = "mean_diff_fn",
+                            cov.type = cov.type, cov.par = cov.par,
+                            sigma2.e = sigma2.e, missing_type = missing_type,
+                            missing_percent = missing_percent, eval_SS = eval_SS,
+                            alloc.ratio = alloc.ratio, fpca_method = fpca_method,
+                            mean_diff_add_args = mean_diff_add_args,
+                            fpca_optns = fpca_optns)$required_SS
+}
+stopCluster(cl)
+quantile(required_sample_size, probs = c(0,0.05,0.1,0.25,0.5,0.75,0.9,0.95,1), names = TRUE)
+```
+
+
+We have intentionally left out the discussion of `npc_to_use` argument for the `fPASS::PASS_Proj_Test_ufDA()` function. The number of eigenfunction to use to compute the PASS is not before hand. Therefore, for a specified sampling design and covariance structure of the response trajectory, it is not possible to to provide an appropriate value unless the user has an substantial information about the eigencomponents before. This is where the function `fPASS::Extract_Eigencomp_fDA()` can assist. If we look at the help page of that function, you can notice that except for one argument, all of arguments of that function matches that of `fPASS::PASS_Proj_Test_ufDA()`. Therefore, for a specified sampling design and covariance parameter we can take a look the estimated eigenfunctions and eigenvalues to have a more informed decision how many eigencomponents to use to in the main function to conduct the PASS analysis. Here is an example of that in our case study.
+
+#####  Estimate eigenfunctions using `fPASS::fpca.sc()` function
+
+```{r, eval=FALSE}
+
+fpca_method <- "fpca.sc"
+
+library(foreach)
+library(doParallel)
+cl <- makeCluster(5)
+registerDoParallel(cl)
+eigenlist <- foreach(i=1:5, .packages = "fPASS") %dopar% {
+  mean_diff_fn <- mean_diff_fn
+eigencomp <- Extract_Eigencomp_fDA(nobs_per_subj = nobs_per_subj,
+                      obs.design = obs.design, mean_diff_fnm = mean_diff_fnm,
+                      cov.type = cov.type, cov.par = cov.par,
+                      sigma2.e = sigma2.e, missing_type = missing_type,
+                      missing_percent = missing_percent, eval_SS = eval_SS,
+                      alloc.ratio = alloc.ratio, fpca_method = fpca_method,
+                      mean_diff_add_args = mean_diff_add_args,
+                      fpca_optns = fpca_optns) 
+ eigencomp[c("working.grid", "est_eigenfun", "est_eigenval")]
+}
+stopCluster(cl)
+print(lapply(eigenlist, function(x) x$est_eigenval))
+```
+
+#####  Estimate eigenfunctions using `face::face.sparse()` function
+
+```{r, eval=FALSE}
+
+fpca_method <- "face"
+
+library(foreach)
+library(doParallel)
+cl <- makeCluster(5)
+registerDoParallel(cl)
+eigenlist <- foreach(i=1:5, .packages = "fPASS") %dopar% {
+  mean_diff_fn <- mean_diff_fn
+eigencomp <- Extract_Eigencomp_fDA(nobs_per_subj = nobs_per_subj,
+                      obs.design = obs.design, mean_diff_fnm = mean_diff_fnm,
+                      cov.type = cov.type, cov.par = cov.par,
+                      sigma2.e = sigma2.e, missing_type = missing_type,
+                      missing_percent = missing_percent, eval_SS = eval_SS,
+                      alloc.ratio = alloc.ratio, fpca_method = fpca_method,
+                      mean_diff_add_args = mean_diff_add_args,
+                      fpca_optns = fpca_optns) 
+ eigencomp[c("working.grid", "est_eigenfun", "est_eigenval")]
+}
+stopCluster(cl)
+# matplot(eigencomp$working.grid, eigencomp$est_eigenfun, type="l", 
+#         xlab = "timepoints (scaled)", ylab = "eigenfunctions")
+print(lapply(eigenlist, function(x) x$est_eigenval))
+```
+
+As we can see that 
+
+#####  Distribution of minimum sample size using `face::face.sparse()` function with pre-specified number of eigenfunction.
+
+```{r}
+npc_to_use <- 3
+```
+
+```{r, eval=FALSE}
+fpca_method <- "face"
+library(foreach)
+library(doParallel)
+cl <- makeCluster(8)
+registerDoParallel(cl)
+required_sample_size <- foreach(i=1:50, .combine='c', .packages = "fPASS") %dopar% {
+        mean_diff_fn <- mean_diff_fn
+        PASS_Proj_Test_ufDA(sample_size = NULL, target.power = target.power,
+                            sig.level = sig.level, nobs_per_subj = nobs_per_subj,
+                            obs.design = obs.design, mean_diff_fnm = mean_diff_fnm,
+                            cov.type = cov.type, cov.par = cov.par,
+                            sigma2.e = sigma2.e, missing_type = missing_type,
+                            missing_percent = missing_percent, eval_SS = 1000,
+                            alloc.ratio = alloc.ratio, fpca_method = fpca_method,
+                            mean_diff_add_args = mean_diff_add_args,
+                            fpca_optns = fpca_optns, npc_to_use = npc_to_use)$required_SS
+}
+stopCluster(cl)
+quantile(required_sample_size, probs = c(0,0.05,0.1,0.25,0.5,0.75,0.9,0.95,1), names = TRUE)
+```
+
+#### Missing data
+
+Under the same setup, if We want to compute the minimum sample size required when the percentage of missing observation at each time point is around $25\%$, then we can see the distribution of sample size required after running the function about 100 times as follows. 
+
+```{r}
+missing_type <- "constant"
+missing_percent <- 0.25
+```
+
+```{r, eval=FALSE, message=FALSE}
+fpca_method <- "fpca.sc"
+library(foreach)
+library(doParallel)
+cl <- makeCluster(8)
+registerDoParallel(cl)
+required_sample_size <- foreach(i=1:100, .combine='c', .packages = "fPASS") %dopar% {
+        mean_diff_fn <- mean_diff_fn
+        PASS_Proj_Test_ufDA(sample_size = NULL, target.power = target.power,
+                            sig.level = sig.level, nobs_per_subj = nobs_per_subj,
+                            obs.design = obs.design, mean_diff_fnm = "mean_diff_fn",
+                            cov.type = cov.type, cov.par = cov.par,
+                            sigma2.e = sigma2.e, missing_type = missing_type,
+                            missing_percent = missing_percent, eval_SS = eval_SS,
+                            alloc.ratio = alloc.ratio, fpca_method = fpca_method,
+                            mean_diff_add_args = mean_diff_add_args,
+                            fpca_optns = fpca_optns)$required_SS
+}
+stopCluster(cl)
+quantile(required_sample_size, probs = c(0,0.05,0.1,0.25,0.5,0.75,0.9,0.95,1), names = TRUE)
+```
+
+
+
 

@@ -3,7 +3,7 @@
 #' by simulating from a large number of subjects.
 #' @description
 #'
-#' `r lifecycle::badge("experimental")`
+#' `r lifecycle::badge("stable")`
 #'
 #' @description
 #'
@@ -47,12 +47,12 @@
 #' in the argument \code{obs.design$visit.schedule}. The length of \code{obs.design$visit.schedule}
 #' must match \code{length(nobs_per_subj)-1}. Internally, when
 #' \code{obs.design$design == 'longitudinal'}, the function scale the visit times
-#' so that it lies between \eqn{[0,1]}, so the user should not
+#' so that it lies between \[0, 1\], so the user should not
 #' specify any element named \code{fun.domain} in the
 #' list for \code{obs.design$design == 'longitudinal'}. Make sure that
 #'  the mean function and the covariance function specified
 #' in the \code{cov.par} and \code{mean_diff_fnm} parameter also scaled to
-#' take argument between \eqn{[0,1]}. Also, it is imperative to say that `nobs_per_subj` must
+#' take argument between \[0, 1\]. Also, it is imperative to say that `nobs_per_subj` must
 #' be of a scalar positive integer for \code{design == 'longitudinal'}.
 #'
 #' @author Salil Koner \cr Maintainer: Salil Koner
@@ -83,7 +83,7 @@
 #' and \code{visit.window} denoting the maximum time window for every visit.
 #' For functional design (where the observation points are either densely observed within a
 #' compact interval or under a sparse random design), the argument must be provided
-#' as a named list with elements\code{design} and \code{fun.domain}, where
+#' as a named list with elements \code{design} and \code{fun.domain}, where
 #' \code{obs.design$design} must be specified as `'functional'` and \code{obs.design$fun.domain}
 #' must be specified as a two length vector indicating the domain of the function.
 #' See Details on the specification of arguments section below more details.
@@ -127,6 +127,7 @@
 #'                     missing percentage at every time point. The current version of package only supports
 #'                     \code{missing_type = 'constant'}.
 #' @param missing_percent The percentage of missing at each observation points for each subject.
+#' Must be supplied as number between \[0, 0.8\], as missing percentage more than 80% is not practical.
 #' If \code{nobs_per_subj} is supplied as vector, then \code{missing_type}
 #'                      is forced to set as `'nomiss'` and \code{missing_percent = 0}, because
 #'                     the \code{missing_type = 'constant'} has no meaning if the number of observations are
@@ -140,7 +141,7 @@
 #'  will still be estimated based on the total sample_size, however, the variance
 #'  of the `shrinkage` scores (which is required to compute the power function) will be
 #' estimated based on the allocation of the samples in each group. Must be given as vector of
-#' length 2. Default value is set at \code{c(1,1)}, indicating equal sample size.
+#' length 2. Default value is set at \code{c(1, 1)}, indicating equal sample size.
 #' @param fpca_method The method by which the FPCA is computed. Must be one of
 #' `'fpca.sc'` and `'face'`. If \code{fpca_method == 'fpca.sc'} then the eigencomponents
 #' are estimated using the function [refund::fpca.sc()]. However, since the [refund::fpca.sc()]
@@ -158,11 +159,15 @@
 #'                  or [face::face.sparse()] function in order
 #'                   to estimate the eigencomponents. It must be a named list with elements
 #'                   to be passed onto the respective function, depending on the \code{fpca_method}.
+#'                   The names of the list must not match either of
+#'                   \code{c('data', 'newdata', 'argvals.new')}
+#'                   for \code{fpca_method == 'face'} and must not match either of
+#'                   \code{c('ydata', 'Y.pred')} for  \code{fpca_method == 'fpca.sc'}.
 #' @return A list with the elements listed below.
 #' \enumerate{
 #' \item \code{mean_diff_vec} - The evaluation of the mean function at the working grid.
 #' \item \code{est_eigenfun} - The evaluation of the estimated eigenfunctions at the working grid.
-#' \item \code{est_eigval} - Estimated eigen values.
+#' \item \code{est_eigenval} - Estimated eigen values.
 #' \item \code{working.grid} - The grid points at which \code{mean_diff_vec} and
 #' \code{est_eigenfun} are evaluated.
 #' \item \code{weights} - The Gaussian quadrature weights obtained from [gss::gauss.quad()]
@@ -482,8 +487,6 @@ Extract_Eigencomp_fDA  <- function(nobs_per_subj, obs.design, mean_diff_fnm,
     group_form     <- stringr::str_split_1(deparse(nlme::getGroupsFormula(cor.str)), "~")[-1]
     covar_vars     <- stringr::str_split_1(covar_form, " \\+ ")
     groups_vars    <- stringr::str_split_1(group_form, " \\+ ")
-    cat("grouping variable is", groups_vars, "\n")
-    cat("covariate variable is", covar_vars, "\n")
     testthat::expect_true((length(groups_vars)  == 1) & (length(covar_vars)  == 1) &
                           all(c(covar_vars, groups_vars) !=  ".id.") & (covar_vars != groups_vars),
                           info = "more than one grouping vars or one covariate vars
@@ -537,7 +540,7 @@ Extract_Eigencomp_fDA  <- function(nobs_per_subj, obs.design, mean_diff_fnm,
     fpcObj         <- eval(fpcCall)
     est_eigenfun   <- fpcObj$eigenfunctions
     est_scores     <- fpcObj$rand_eff$scores
-    est_eigval     <- fpcObj$eigenvalues
+    est_eigenval   <- fpcObj$eigenvalues
   } else{
     # renaming the dataset for for fpca.sc function
     fuldat_c       <- fuldat_c %>% dplyr::rename(.id = subj, .index = argvals, .value = y)
@@ -552,10 +555,10 @@ Extract_Eigencomp_fDA  <- function(nobs_per_subj, obs.design, mean_diff_fnm,
       est_eigenfun[, col] <- as.vector(mgcv::predict.gam(effit, newdata = data.frame("argvals" = working.grid)) )
     }
     est_scores     <- fpcObj$scores
-    est_eigval     <- fpcObj$evalues
+    est_eigenval   <- fpcObj$evalues
   }
   weights          <- gauss.quad.pts$wt
-  ret.objects      <- c("mean_diff_vec", "est_eigenfun", "est_eigval", "working.grid", "weights", "fpcCall")
+  ret.objects      <- c("mean_diff_vec", "est_eigenfun", "est_eigenval", "working.grid", "weights", "fpcCall")
   if(!is.null(est_scores)){
     scores_1       <- est_scores[g,  , drop=FALSE]
     scores_2       <- est_scores[!g, , drop=FALSE]

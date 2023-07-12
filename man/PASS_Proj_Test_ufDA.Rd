@@ -50,7 +50,7 @@ specifying schedule of visits (in months or days or any unit of time), other tha
 and \code{visit.window} denoting the maximum time window for every visit.
 For functional design (where the observation points are either densely observed within a
 compact interval or under a sparse random design), the argument must be provided
-as a named list with elements\code{design} and \code{fun.domain}, where
+as a named list with elements \code{design} and \code{fun.domain}, where
 \code{obs.design$design} must be specified as \code{'functional'} and \code{obs.design$fun.domain}
 must be specified as a two length vector indicating the domain of the function.
 See Details on the specification of arguments section below more details.}
@@ -70,7 +70,7 @@ must be specified a named list of two elements, \code{var} and \code{cor},
 where \code{var} is the common variance of the observations, which must be a
 positive number; and \code{cor} specifies the correlation structure between
 the observations. \code{cov.par$cor} must be specified in the form of the
-\link[nlme:corClasses]{nlme::corClasses} specified in R package \pkg{nlme}.
+\link[nlme:corClasses]{nlme::corClasses} specified in R package \pkg{'nlme'}.
 Check the package documentation for more details for each of the correlation classes.
 The \code{cov.par$cor} must be a \code{corStruct} class so it can be
 passed onto the \code{\link[nlme:corMatrix]{nlme::corMatrix()}} to extract the subject-specific covariance matrix.
@@ -100,6 +100,7 @@ missing percentage at every time point. The current version of package only supp
 \code{missing_type = 'constant'}.}
 
 \item{missing_percent}{The percentage of missing at each observation points for each subject.
+Must be supplied as number between [0, 0.8], as missing percentage more than 80\% is not practical.
 If \code{nobs_per_subj} is supplied as vector, then \code{missing_type}
 is forced to set as \code{'nomiss'} and \code{missing_percent = 0}, because
 the \code{missing_type = 'constant'} has no meaning if the number of observations are
@@ -115,7 +116,7 @@ and that the sampling design will not have much effect on the loss of precision.
 will still be estimated based on the total sample_size, however, the variance
 of the \code{shrinkage} scores (which is required to compute the power function) will be
 estimated based on the allocation of the samples in each group. Must be given as vector of
-length 2. Default value is set at \code{c(1,1)}, indicating equal sample size.}
+length 2. Default value is set at \code{c(1, 1)}, indicating equal sample size.}
 
 \item{fpca_method}{The method by which the FPCA is computed. Must be one of
 \code{'fpca.sc'} and \code{'face'}. If \code{fpca_method == 'fpca.sc'} then the eigencomponents
@@ -132,7 +133,11 @@ function specified in the argument \code{mean_diff_fnm}.}
 \item{fpca_optns}{Additional options to be passed onto either of \code{\link[=fpca.sc]{fpca.sc()}}
 or \code{\link[face:face.sparse]{face::face.sparse()}} function in order
 to estimate the eigencomponents. It must be a named list with elements
-to be passed onto the respective function, depending on the \code{fpca_method}.}
+to be passed onto the respective function, depending on the \code{fpca_method}.
+The names of the list must not match either of
+\code{c('data', 'newdata', 'argvals.new')}
+for \code{fpca_method == 'face'} and must not match either of
+\code{c('ydata', 'Y.pred')} for  \code{fpca_method == 'fpca.sc'}.}
 
 \item{npc_to_use}{Number of eigenfunctions to use to compute the power. Default is NULL, in
 which case all the eigenfunctions estimated from the data will be used.}
@@ -148,7 +153,7 @@ If \code{return.eigencomp == TRUE} then \code{est_eigencomp} is also returned, c
 the entire output obtained from internal call of \code{\link[=Extract_Eigencomp_fDA]{Extract_Eigencomp_fDA()}}.
 }
 \description{
-\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#stable}{\figure{lifecycle-stable.svg}{options: alt='[Stable]'}}}{\strong{[Stable]}}
 
 The function \code{PASS_Proj_Test_ufDA()} computes the power and sample size (PASS) required to conduct
 the projection-based test of mean function between two groups of longitudinal data
@@ -167,7 +172,7 @@ eigenvalues. The user have a lot of flexibility into tweaking the arguments of t
 to assess the power function of the test under different sampling design and covariance process
 of the response trajectory, and for any arbitrary mean difference function. Overall, the
 functionality of the module is quite comprehensive and includes all the different cases
-considered in the NCSS PASS software. We believe that this software can be an effective
+considered in the 'NCSS PASS (2023)' software. We believe that this software can be an effective
 clinical trial design tools when considering the projection-based test as the primary
 decision making method.
 \subsection{Details on the specification of arguments.}{
@@ -188,12 +193,12 @@ the time points must be accordingly specified
 in the argument \code{obs.design$visit.schedule}. The length of \code{obs.design$visit.schedule}
 must match \code{length(nobs_per_subj)-1}. Internally, when
 \code{obs.design$design == 'longitudinal'}, the function scale the visit times
-so that it lies between \eqn{[0,1]}, so the user should not
+so that it lies between [0, 1], so the user should not
 specify any element named \code{fun.domain} in the
 list for \code{obs.design$design == 'longitudinal'}. Make sure that
 the mean function and the covariance function specified
 in the \code{cov.par} and \code{mean_diff_fnm} parameter also scaled to
-take argument between \eqn{[0,1]}. Also, it is imperative to say that \code{nobs_per_subj} must
+take argument between [0, 1]. Also, it is imperative to say that \code{nobs_per_subj} must
 be of a scalar positive integer for \code{design == 'longitudinal'}.
 }
 }
@@ -275,8 +280,9 @@ pow$required_SS
 \references{
 Wang, Qiyao (2021)
 \emph{Two-sample inference for sparse functional data,  Electronic Journal of Statistics,
-Vol. 15, 1395-1423} \cr
-\doi{https://doi.org/10.1214/21-EJS1802}.
+Vol. 15, 1395-1423}
+\doi{https://doi.org/10.1214/21-EJS1802}. \cr \cr
+PASS 2023 Power Analysis and Sample Size Software (2023). NCSS, LLC. Kaysville, Utah, USA, ncss.com/software/pass.
 }
 \seealso{
 See \code{\link[=Power_Proj_Test_ufDA]{Power_Proj_Test_ufDA()}} and \code{\link[=Extract_Eigencomp_fDA]{Extract_Eigencomp_fDA()}}.

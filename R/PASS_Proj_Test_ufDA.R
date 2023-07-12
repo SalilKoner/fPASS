@@ -2,7 +2,7 @@
 #' Two-Sample Projection-based test for sparsely observed univariate functional data.
 #' @description
 #'
-#' `r lifecycle::badge("experimental")`
+#' `r lifecycle::badge("stable")`
 #'
 #' @description
 #'
@@ -22,7 +22,7 @@
 #' to assess the power function of the test under different sampling design and covariance process
 #' of the response trajectory, and for any arbitrary mean difference function. Overall, the
 #' functionality of the module is quite comprehensive and includes all the different cases
-#' considered in the NCSS PASS software. We believe that this software can be an effective
+#' considered in the 'NCSS PASS (2023)' software. We believe that this software can be an effective
 #' clinical trial design tools when considering the projection-based test as the primary
 #' decision making method.
 #'
@@ -44,12 +44,12 @@
 #' in the argument \code{obs.design$visit.schedule}. The length of \code{obs.design$visit.schedule}
 #' must match \code{length(nobs_per_subj)-1}. Internally, when
 #' \code{obs.design$design == 'longitudinal'}, the function scale the visit times
-#' so that it lies between \eqn{[0,1]}, so the user should not
+#' so that it lies between \[0, 1\], so the user should not
 #' specify any element named \code{fun.domain} in the
 #' list for \code{obs.design$design == 'longitudinal'}. Make sure that
 #'  the mean function and the covariance function specified
 #' in the \code{cov.par} and \code{mean_diff_fnm} parameter also scaled to
-#' take argument between \eqn{[0,1]}. Also, it is imperative to say that `nobs_per_subj` must
+#' take argument between \[0, 1\]. Also, it is imperative to say that `nobs_per_subj` must
 #' be of a scalar positive integer for \code{design == 'longitudinal'}.
 #'
 #' @author Salil Koner \cr Maintainer: Salil Koner
@@ -75,7 +75,7 @@
 #' and \code{visit.window} denoting the maximum time window for every visit.
 #' For functional design (where the observation points are either densely observed within a
 #' compact interval or under a sparse random design), the argument must be provided
-#' as a named list with elements\code{design} and \code{fun.domain}, where
+#' as a named list with elements \code{design} and \code{fun.domain}, where
 #' \code{obs.design$design} must be specified as `'functional'` and \code{obs.design$fun.domain}
 #' must be specified as a two length vector indicating the domain of the function.
 #' See Details on the specification of arguments section below more details.
@@ -92,7 +92,7 @@
 #'                where \code{var} is the common variance of the observations, which must be a
 #'                positive number; and \code{cor} specifies the correlation structure between
 #'                the observations. \code{cov.par$cor} must be specified in the form of the
-#'                [nlme::corClasses] specified in R package \pkg{nlme}.
+#'                [nlme::corClasses] specified in R package \pkg{'nlme'}.
 #'                Check the package documentation for more details for each of the correlation classes.
 #'                The \code{cov.par$cor} must be a \code{corStruct} class so it can be
 #'                passed onto the [nlme::corMatrix()] to extract the subject-specific covariance matrix.
@@ -119,6 +119,7 @@
 #'                     missing percentage at every time point. The current version of package only supports
 #'                     \code{missing_type = 'constant'}.
 #' @param missing_percent The percentage of missing at each observation points for each subject.
+#' Must be supplied as number between \[0, 0.8\], as missing percentage more than 80% is not practical.
 #' If \code{nobs_per_subj} is supplied as vector, then \code{missing_type}
 #'                      is forced to set as `'nomiss'` and \code{missing_percent = 0}, because
 #'                     the \code{missing_type = 'constant'} has no meaning if the number of observations are
@@ -132,7 +133,7 @@
 #'  will still be estimated based on the total sample_size, however, the variance
 #'  of the `shrinkage` scores (which is required to compute the power function) will be
 #' estimated based on the allocation of the samples in each group. Must be given as vector of
-#' length 2. Default value is set at \code{c(1,1)}, indicating equal sample size.
+#' length 2. Default value is set at \code{c(1, 1)}, indicating equal sample size.
 #' @param fpca_method The method by which the FPCA is computed. Must be one of
 #' `'fpca.sc'` and `'face'`. If \code{fpca_method == 'fpca.sc'} then the eigencomponents
 #' are estimated using the function [refund::fpca.sc()]. However, since the [refund::fpca.sc()]
@@ -147,6 +148,10 @@
 #'                  or [face::face.sparse()] function in order
 #'                   to estimate the eigencomponents. It must be a named list with elements
 #'                   to be passed onto the respective function, depending on the \code{fpca_method}.
+#'                   The names of the list must not match either of
+#'                   \code{c('data', 'newdata', 'argvals.new')}
+#'                   for \code{fpca_method == 'face'} and must not match either of
+#'                   \code{c('ydata', 'Y.pred')} for  \code{fpca_method == 'fpca.sc'}.
 #' @param npc_to_use Number of eigenfunctions to use to compute the power. Default is NULL, in
 #' which case all the eigenfunctions estimated from the data will be used.
 #' @param return.eigencomp Indicates whether to return the eigencomponents obtained from the fPCA
@@ -159,8 +164,9 @@
 #' @seealso See [fPASS::Power_Proj_Test_ufDA()] and [fPASS::Extract_Eigencomp_fDA()].
 #' @references Wang, Qiyao (2021)
 #' \emph{Two-sample inference for sparse functional data,  Electronic Journal of Statistics,
-#' Vol. 15, 1395-1423} \cr
-#' \doi{https://doi.org/10.1214/21-EJS1802}.
+#' Vol. 15, 1395-1423}
+#' \doi{https://doi.org/10.1214/21-EJS1802}. \cr \cr
+#' PASS 2023 Power Analysis and Sample Size Software (2023). NCSS, LLC. Kaysville, Utah, USA, ncss.com/software/pass.
 #' @export PASS_Proj_Test_ufDA
 #' @examples
 #'
@@ -269,7 +275,15 @@ PASS_Proj_Test_ufDA  <- function(sample_size, target.power, sig.level = 0.05,
                                          eval_SS = eval_SS, alloc.ratio = alloc.ratio, fpca_method = fpca_method,
                                          data.driven.scores = FALSE, mean_diff_add_args = mean_diff_add_args,
                                          fpca_optns = fpca_optns)
-  if(is.null(npc_to_use)) npc_to_use <- ncol(est_eigencomp$est_eigenfun)
+  if(is.null(npc_to_use)) npc_to_use <- ncol(est_eigencomp$est_eigenfun) else{
+    npc_to_use  <- min(npc_to_use, ncol(est_eigencomp$est_eigenfun))
+  }
+  min_search <- uniroot(function(n){
+    Sum_of_Wishart_df(total_sample_size = n, alloc.ratio = alloc.ratio,
+                             sig1 = est_eigencomp$score_var1[1:npc_to_use, 1:npc_to_use, drop=FALSE],
+                             sig2 = est_eigencomp$score_var2[1:npc_to_use, 1:npc_to_use, drop=FALSE]) -
+      npc_to_use + 1}, c(3, 5000), tol = .Machine$double.eps^0.75, extendInt = "upX")$root
+  # cat("min_search = ", min_search, "\n")
   if (is.null(sample_size)){
     required_SS <- uniroot(function(n){
       Power_Proj_Test_ufDA(total_sample_size = n, argvals = est_eigencomp$working.grid,
@@ -277,7 +291,7 @@ PASS_Proj_Test_ufDA  <- function(sample_size, target.power, sig.level = 0.05,
                            scores_var1 = est_eigencomp$score_var1, scores_var2 = est_eigencomp$score_var2,
                            weights = est_eigencomp$weights, sig.level=sig.level, alloc.ratio = alloc.ratio,
                            npc_to_pick = npc_to_use) - target.power
-    }, c(npc_to_use+2, 5000), tol = .Machine$double.eps^0.25, extendInt = "upX")$root
+    }, c(max(3,min_search + 1, npc_to_use+2), 5000), tol = .Machine$double.eps^0.25, extendInt = "upX")$root
   } else if (is.null(target.power)){
     power_value  <- Power_Proj_Test_ufDA(total_sample_size = sample_size, argvals = est_eigencomp$working.grid,
                                          mean_vector = est_eigencomp$mean_diff_vec, eigen_matrix = est_eigencomp$est_eigenfun,

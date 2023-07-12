@@ -1,14 +1,14 @@
 Package: fPASS
 Title: Two Sample Projection-based Test of Mean function for Functional
     Data
-Version: 1.0.0.0
+Version: 1.0.0
 Authors@R: 
     person("Salil", "Koner", , "salil.koner@duke.edu", role = c("aut", "cre"),
            comment = c(ORCID = "https://orcid.org/0000-0003-1952-4210"))
 Description: Computes the Power and Sample size required to test for the
-    difference in the mean function between two groups of sparsely
-    observed functions under irregular design for several kinds of
-    covariance structure of the data.
+    difference in the mean function between two groups of longitudinal data or sparsely
+    observed functional data under irregular design under arbitrary covariance structure. See
+    Wang (2021) <https://doi.org/10.1214/21-EJS1802> and Koner and Luo (2023) <https://arxiv.org/abs/2302.05612> for details of the testing procedure. 
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
@@ -35,6 +35,5 @@ Suggests:
     rmarkdown,
     Hotelling
 VignetteBuilder: knitr
-URL: https://github.com/SalilKoner/fPASS,
-    https://salilkoner.github.io/fPASS/
+URL: <https://github.com/SalilKoner/fPASS>
 BugReports: https://github.com/SalilKoner/fPASS/issues
