@@ -11,7 +11,7 @@ vignette: >
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  eval=FALSE
+  eval=TRUE
 )
 #options(rmarkdown.html_vignette.check_title = FALSE)
 ```
@@ -20,17 +20,17 @@ This document will present a elaborate understanding of the `fPASS` R package an
 
 ## Installation
 
-::: .pkgdown-devel
 ```{r, eval = FALSE}
 # Install development version from GitHub
 devtools::install_github("SalilKoner/fPASS", build_vignettes = FALSE)
 ```
-:::
 
 ## Usage
 
 ```{r setup, message=FALSE}
 library(fPASS)
+library(nlme)
+library(face)
 ```
 
 ```{r, include=F, eval=TRUE}
