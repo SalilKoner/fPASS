@@ -1,6 +1,6 @@
 #' \code{fPASS} package
 #'
-#' See the README on \href{https://github.com/SalilKoner/fPASS}{GitHub}
+#' See the README on \url{https://github.com/SalilKoner/fPASS/blob/main/README.md}
 #' @keywords internal
 "_PACKAGE"
 

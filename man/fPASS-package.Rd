@@ -6,7 +6,7 @@
 \alias{fPASS-package}
 \title{\code{fPASS} package}
 \description{
-See the README on \href{https://github.com/SalilKoner/fPASS}{GitHub}
+See the README on \url{https://github.com/SalilKoner/fPASS/blob/main/README.md}
 }
 \details{
 R package \pkg{fPASS} is designed to perform the power and sample size analysis
@@ -23,7 +23,7 @@ decision making method.
 \seealso{
 Useful links:
 \itemize{
-  \item \url{<https://github.com/SalilKoner/fPASS>}
+  \item \url{https://github.com/SalilKoner/fPASS}
   \item Report bugs at \url{https://github.com/SalilKoner/fPASS/issues}
 }
 

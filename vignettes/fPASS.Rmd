@@ -11,7 +11,7 @@ vignette: >
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  eval=FALSE
+  eval=TRUE
 )
 #options(rmarkdown.html_vignette.check_title = FALSE)
 ```
@@ -27,7 +27,7 @@ devtools::install_github("SalilKoner/fPASS", build_vignettes = FALSE)
 
 ## Usage
 
-```{r setup, message=FALSE}
+```{r setup, eval=TRUE, message=FALSE}
 library(fPASS)
 library(nlme)
 library(face)
@@ -130,14 +130,11 @@ mean_diff_add_args  <- list()
 
 #####  Distribution of minimum sample size using `fPASS::fpca.sc()` function:
 
-Now that we have explained how to specify each and every arguments of `fPASS::PASS_Proj_Test_ufDA()` function, we will compute the minimum sample size required. However, as the testing procedure internally computes the eigenfunctions based on large number of samples and then uses the estimated eigenfunctions to compute the PASS, the computed power and the minimum sample size will be different due to the fact that the estimated eigenfunctions are different at each run because of sampling variation. Therefore, it is important to run the function `fPASS::PASS_Proj_Test_ufDA()` for few iterations to see how the sampling variation affects the computed power or sample size. In this example, we run the same function in parallel for about 100 times, and present the percentiles of the estimated sample size. It is recommended to use the median of these computed sample sizes obtained after 100 runs, as a point estimate of the minimum sample size and the interquartile range (IQR) as a valid measure of range of the sample size that could be considered. From a practical perspective, depending on the budget of the trial, one can choose the minimum number of subjects that will be enrolled for the trial based on the value of IQR.
+Now that we have explained how to specify each and every arguments of `fPASS::PASS_Proj_Test_ufDA()` function, we will compute the minimum sample size required. However, as the testing procedure internally computes the eigenfunctions based on large number of samples and then uses the estimated eigenfunctions to compute the PASS, the computed power and the minimum sample size will be different due to the fact that the estimated eigenfunctions are different at each run because of sampling variation. Therefore, it is important to run the function `fPASS::PASS_Proj_Test_ufDA()` for few iterations to see how the sampling variation affects the computed power or sample size. In this example, we run the same function in parallel for about 10 times, and present the percentiles of the estimated sample size. It is recommended to run the the function at least about 50 to 100 times and use the median of these computed sample sizes obtained after a reasonable number of iteration, as a point estimate of the minimum sample size and the interquartile range (IQR) as a valid measure of range of the sample size that could be considered. From a practical perspective, depending on the budget of the trial, one can choose the minimum number of subjects that will be enrolled for the trial based on the value of IQR.
 
-```{r, message=FALSE}
+```{r, message=FALSE, results='hide'}
 library(foreach)
-library(doParallel)
-cl <- makeCluster(detectCores()-1)
-registerDoParallel(cl)
-required_sample_size <- foreach(i=1:30, .combine='c', .packages = "fPASS") %dopar% {
+required_sample_size <- foreach(i=1:10, .combine='c', .packages = "fPASS") %do% {
         mean_diff_fn <- mean_diff_fn
         PASS_Proj_Test_ufDA(sample_size = NULL, target.power = target.power,
                             sig.level = sig.level, nobs_per_subj = nobs_per_subj,
@@ -149,23 +146,21 @@ required_sample_size <- foreach(i=1:30, .combine='c', .packages = "fPASS") %dopa
                             mean_diff_add_args = mean_diff_add_args,
                             fpca_optns = fpca_optns, npc_to_use = NULL)$required_SS
 }
-stopCluster(cl)
-quantile(required_sample_size, probs = c(0.1,0.25,0.5,0.75,0.9), names = TRUE)
+```
+
+```{r}
+quantile(required_sample_size, probs = c(0.25,0.5,0.75), names = TRUE)
 ```
 
 We have intentionally left out the discussion of `npc_to_use` argument for the `fPASS::PASS_Proj_Test_ufDA()` function. The number of eigenfunction to use to compute the PASS is not before hand. Therefore, for a specified sampling design and covariance structure of the response trajectory, it is not possible to to provide an appropriate value unless the user has an substantial information about the eigencomponents before. This is where the function `fPASS::Extract_Eigencomp_fDA()` can assist. If we look at the help page of that function, you can notice that except for one argument, all of arguments of that function matches that of `fPASS::PASS_Proj_Test_ufDA()`. Therefore, for a specified sampling design and covariance parameter we can take a look the estimated eigenfunctions and eigenvalues to have a more informed decision how many eigencomponents to use to in the main function to conduct the PASS analysis. Here is an example of that in our case study.
 
 #####  Estimate eigenfunctions using `fPASS::fpca.sc()` function
 
-```{r}
-
+```{r, message = F, results='hide'}
 fpca_method <- "fpca.sc"
 
 library(foreach)
-library(doParallel)
-cl <- makeCluster(detectCores()-1)
-registerDoParallel(cl)
-eigenlist <- foreach(i=1:5, .packages = "fPASS") %dopar% {
+eigenlist <- foreach(i=1:3, .packages = "fPASS") %do% {
   mean_diff_fn <- mean_diff_fn
 eigencomp <- Extract_Eigencomp_fDA(nobs_per_subj = nobs_per_subj,
                       obs.design = obs.design, mean_diff_fnm = mean_diff_fnm,
@@ -174,10 +169,13 @@ eigencomp <- Extract_Eigencomp_fDA(nobs_per_subj = nobs_per_subj,
                       missing_percent = missing_percent, eval_SS = eval_SS,
                       alloc.ratio = alloc.ratio, fpca_method = fpca_method,
                       mean_diff_add_args = mean_diff_add_args,
-                      fpca_optns = fpca_optns) 
+                      fpca_optns = fpca_optns,
+                      data.driven.scores = FALSE) 
  eigencomp[c("working.grid", "est_eigenfun", "est_eigenval")]
 }
-stopCluster(cl)
+```
+
+```{r}
 print(lapply(eigenlist, function(x) x$est_eigenval))
 ```
 
@@ -185,15 +183,22 @@ For a specified PVE of $95\%$, `fPASS::fpca.sc()` function detects two leading e
 
 #####  Estimate eigenfunctions using `face::face.sparse()` function
 
-```{r}
+```{r, message = F, results='hide'}
 
 fpca_method <- "face"
+# Setting eval_SS to 500, specifically for 
+# the face::face.sparse() function
+# to ensure that the vignette builds within
+# real time. The user must set a much larger value
+# of eval_SS e.g. ranging between 2000-5000, to ensure
+# enough precision accuracy for the eigenfunctions. 
+eval_SS  <- 500 # increase it to 2000 for practical case
 
 library(foreach)
-library(doParallel)
-cl <- makeCluster(detectCores()-1)
-registerDoParallel(cl)
-eigenlist <- foreach(i=1:5, .packages = "fPASS") %dopar% {
+# library(doParallel)
+# cl <- makeCluster(detectCores()-1)
+# registerDoParallel(cl)
+eigenlist <- foreach(i=1:3, .packages = "fPASS") %do% {
   mean_diff_fn <- mean_diff_fn
 eigencomp <- Extract_Eigencomp_fDA(nobs_per_subj = nobs_per_subj,
                       obs.design = obs.design, mean_diff_fnm = mean_diff_fnm,
@@ -202,16 +207,20 @@ eigencomp <- Extract_Eigencomp_fDA(nobs_per_subj = nobs_per_subj,
                       missing_percent = missing_percent, eval_SS = eval_SS,
                       alloc.ratio = alloc.ratio, fpca_method = fpca_method,
                       mean_diff_add_args = mean_diff_add_args,
-                      fpca_optns = fpca_optns) 
+                      fpca_optns = fpca_optns,
+                      data.driven.scores = FALSE) 
  eigencomp[c("working.grid", "est_eigenfun", "est_eigenval")]
 }
-stopCluster(cl)
+# stopCluster(cl)
 # matplot(eigencomp$working.grid, eigencomp$est_eigenfun, type="l", 
 #         xlab = "timepoints (scaled)", ylab = "eigenfunctions")
+```
+
+```{r, message=F}
 print(lapply(eigenlist, function(x) x$est_eigenval))
 ```
 
-We notice that `face::face.sparse()` function is detecting three eigenfunction in most of the cases, for the same setup. However, the eigenvalue corresponding to the last eigenfunction seems to be small, and that is possibly the reason it was not detected by `fPASS::fpca.sc()` function. This provides us a more informed decision about the number of eigenfunctions to use. So, technically we should discard the last eigenfunction to compute the projection of mean difference onto the eigenfunctions, and use `npc_to_use = 2` in the `fPASS::PASS_Proj_Test_ufDA` function, so that the power function is not overinflated by detection of extra eigenfunctions. However, for better understanding of the reader, we will still use `npc_to_use = 3` for `fpca_method == 'face'` to find out how the distribution of minimum sample size required is allowing an extra eigenfunction (with possibly zero eigenvalues) for `fpca_method == 'face'`. The number of replication is kept at 15, to ensure that the vignette runs within a reasonable amount of time, please increase it for more comprehensive understanding of the effect of estimating eigenfunctions on range of the minimum sample size required. 
+We notice that `face::face.sparse()` function is detecting three eigenfunction in most of the cases, for the same setup. However, the eigenvalue corresponding to the last eigenfunction seems to be small, and that is possibly the reason it was not detected by `fPASS::fpca.sc()` function. This provides us a more informed decision about the number of eigenfunctions to use. So, technically we should discard the last eigenfunction to compute the projection of mean difference onto the eigenfunctions, and use `npc_to_use = 2` in the `fPASS::PASS_Proj_Test_ufDA` function, so that the power function is not overinflated by detection of extra eigenfunctions. However, for better understanding of the reader, we will still use `npc_to_use = 3` for `fpca_method == 'face'` to find out how the distribution of minimum sample size required is allowing an extra eigenfunction (with possibly zero eigenvalues) for `fpca_method == 'face'`. The number of replication is kept at 10, to ensure that the vignette runs within a reasonable amount of time, please increase it for more comprehensive understanding of the effect of estimating eigenfunctions on range of the minimum sample size required. 
 
 #####  Distribution of minimum sample size using `face::face.sparse()` function with pre-specified number of eigenfunction.
 
@@ -219,26 +228,26 @@ We notice that `face::face.sparse()` function is detecting three eigenfunction i
 npc_to_use <- 3
 ```
 
-```{r}
+```{r, message=F, results='hide'}
 fpca_method <- "face"
+
 library(foreach)
-library(doParallel)
-cl <- makeCluster(detectCores()-1)
-registerDoParallel(cl)
-required_sample_size <- foreach(i=1:15, .combine='c', .packages = "fPASS") %dopar% {
+required_sample_size <- foreach(i=1:5, .combine='c', .packages = "fPASS") %do% {
         mean_diff_fn <- mean_diff_fn
         PASS_Proj_Test_ufDA(sample_size = NULL, target.power = target.power,
                             sig.level = sig.level, nobs_per_subj = nobs_per_subj,
                             obs.design = obs.design, mean_diff_fnm = mean_diff_fnm,
                             cov.type = cov.type, cov.par = cov.par,
                             sigma2.e = sigma2.e, missing_type = missing_type,
-                            missing_percent = missing_percent, eval_SS = 1000,
+                            missing_percent = missing_percent, eval_SS = 500,
                             alloc.ratio = alloc.ratio, fpca_method = fpca_method,
                             mean_diff_add_args = mean_diff_add_args,
                             fpca_optns = fpca_optns, npc_to_use = npc_to_use)$required_SS
 }
-stopCluster(cl)
-quantile(required_sample_size, probs = c(0.1,0.25,0.5,0.75,0.9), names = TRUE)
+```
+
+```{r}
+quantile(required_sample_size, probs = c(0.25,0.5,0.75), names = TRUE)
 ```
 
 As expected, using a higher value of `npc_to_use` leads to over inflation of power, and consequently computed sample size is significantly less than which we obtained for `fpca_method = 'fpca.sc'`. But, this comes at cost of over inflation of type I error of the test. Therefore, for a specified correlation structure of the response, we must take extra care to NOT use unnecessary eigenfunctions, to avoid the risk of inflation of inflated type I error. 
@@ -252,13 +261,12 @@ missing_type <- "constant"
 missing_percent <- 0.25
 ```
 
-```{r, message=FALSE}
+```{r, message=FALSE, results='hide'}
 fpca_method <- "fpca.sc"
+eval_SS  <- 5000
+
 library(foreach)
-library(doParallel)
-cl <- makeCluster(detectCores()-1)
-registerDoParallel(cl)
-required_sample_size <- foreach(i=1:30, .combine='c', .packages = "fPASS") %dopar% {
+required_sample_size <- foreach(i=1:10, .combine='c', .packages = "fPASS") %do% {
         mean_diff_fn <- mean_diff_fn
         PASS_Proj_Test_ufDA(sample_size = NULL, target.power = target.power,
                             sig.level = sig.level, nobs_per_subj = nobs_per_subj,
@@ -270,8 +278,10 @@ required_sample_size <- foreach(i=1:30, .combine='c', .packages = "fPASS") %dopa
                             mean_diff_add_args = mean_diff_add_args,
                             fpca_optns = fpca_optns, npc_to_use = 2)$required_SS
 }
-stopCluster(cl)
-quantile(required_sample_size, probs = c(0.1,0.25,0.5,0.75,0.9), names = TRUE)
+```
+
+```{r, message=FALSE}
+quantile(required_sample_size, probs = c(0.25,0.5,0.75), names = TRUE)
 ```
 
 The IQR of the distribution of the minimum sample sizes when the percentage of missing is as significant as $25\%$ is still about the same as that when there is no missing, i.e. `missing_type == 'nomiss'` and `missing_percent = 0`. This reflects one of the biggest advantage of the projection-based test compared to traditional mixed model approaches, that as long as the missing percentage do not affect the estimation of the eigencomponents, the power of the test does not degrade with the increasing percentage of missing responses. 

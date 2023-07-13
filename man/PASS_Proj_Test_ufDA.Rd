@@ -218,6 +218,8 @@ obs.design = list("design" = "longitudinal",
 cor.str <- nlme::corExp(1, form = ~ time | Subject);
 sigma2 <- 1; sigma2.e <- 0.25; nobs_per_subj <- 8;
 missing_type <- "constant"; missing_percent <- 0.01;
+# Please increase `eval_SS` argument from 1000 to 5000 to get
+# accurate precision on the estimated eigenfunctions.
 pow  <- PASS_Proj_Test_ufDA(sample_size = 100, target.power = NULL, sig.level = 0.05,
                             obs.design = obs.design,
                             mean_diff_fnm = "mean.diff", cov.type = "ST",
@@ -229,12 +231,12 @@ pow  <- PASS_Proj_Test_ufDA(sample_size = 100, target.power = NULL, sig.level = 
                             fpca_method = "fpca.sc",
                             mean_diff_add_args = list(), fpca_optns = list("pve" = 0.95))
 
-pow$power_value
+print(pow$power_value)
 
 # Example 2: Sample size calculation for a non-stationary covariance:
 
 alloc.ratio  <- c(1,1)
-mean.diff    <- function(t) {1 * (t^3)};
+mean.diff    <- function(t) {3 * (t^3)};
 eig.fun <- function(t, k) {
   if (k==1) ef <- sqrt(2)*sin(2*pi*t)
   else if (k==2) ef <- sqrt(2)*cos(2*pi*t)
@@ -246,6 +248,8 @@ cov.par      <- list("cov.obj" = NULL, "eigen.comp" = eigen.comp)
 sigma2.e     <- 0.001; nobs_per_subj <- 4:7;
 missing_type <- "nomiss"; missing_percent <- 0;
 fpca_method  <- "fpca.sc"
+# Please increase `eval_SS` argument from 1000 to 5000 to get
+# accurate precision on the estimated eigenfunctions.
 pow  <- PASS_Proj_Test_ufDA(sample_size = NULL, target.power = 0.8,
                             sig.level = 0.05, obs.design = obs.design,
                             mean_diff_fnm = "mean.diff", cov.type = "NS",
@@ -255,7 +259,7 @@ pow  <- PASS_Proj_Test_ufDA(sample_size = NULL, target.power = 0.8,
                             alloc.ratio = alloc.ratio, fpca_method = "fpca.sc",
                             mean_diff_add_args = list(), fpca_optns = list(pve = 0.95))
 
-pow$required_SS
+print(pow$required_SS)
 
 }
 \references{

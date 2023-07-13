@@ -1,5 +1,6 @@
 Package: fPASS
-Title: Power and Sample Size Analysis for Projection-Based Testing of Mean Difference under Repeated Measures Design
+Title: Power and Sample Size Analysis for Projection-Based
+    Testing of Mean Difference under Repeated Measures Design
 Version: 1.0.0
 Authors@R: c(
     person("Salil", "Koner", email = "salil.koner@duke.edu", role = c("aut", "cre", "cph"),
@@ -10,8 +11,8 @@ Description: Computes the power and sample size (PASS) required to test for the
     or sparse functional design. See <https://salilkoner.github.io/assets/PASS_manuscript.pdf> 
     for details of the PASS formula and computational details. The details of the testing
     procedure for univariate and multivariate response are presented in
-    Wang (2021) <https://doi.org/10.1214/21-EJS1802> and Koner and Luo (2023) 
-    <https://arxiv.org/abs/2302.05612>, respectively. 
+    Wang (2021) <doi:10.1214/21-EJS1802> and Koner and Luo (2023) 
+    <arXiv:2302.05612> respectively. 
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
@@ -37,8 +38,9 @@ Suggests:
     knitr,
     rmarkdown,
     Hotelling,
-    refund
+    refund,
+    foreach
 VignetteBuilder: knitr
-URL: <https://github.com/SalilKoner/fPASS>
+URL: https://github.com/SalilKoner/fPASS
 BugReports: https://github.com/SalilKoner/fPASS/issues
 Config/testthat/edition: 3
