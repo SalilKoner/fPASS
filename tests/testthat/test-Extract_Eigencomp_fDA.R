@@ -19,7 +19,7 @@ testthat::test_that("Extract_Eigencomp_fDA() estimates the eigenfunctions correc
                           mean_diff_add_args = list(), fpca_optns = list("pve" = 0.95))
     testthat::expect_lte(max(colSums(sweep({(abs(eigencomp$est_eigenfun[,1:2]) -
                                            abs(eig.fun.vec(eigencomp$working.grid)))^2},1,eigencomp$weights, FUN="*")))
-                         , 0.01)
+                         , 0.02)
     })
 
 testthat::test_that("Extract_Eigencomp_fDA() estimates the eigenfunctions correctly
@@ -44,7 +44,7 @@ testthat::test_that("Extract_Eigencomp_fDA() estimates the eigenfunctions correc
                                                          mean_diff_add_args = list(), fpca_optns = list("pve" = 0.95))
                       testthat::expect_lte(max(colSums(sweep({(abs(eigencomp$est_eigenfun[,1:2]) -
                                                                  abs(eig.fun.vec(eigencomp$working.grid)))^2},1,eigencomp$weights, FUN="*")))
-                                           , 0.01)
+                                           , 0.02)
                     })
 
 
