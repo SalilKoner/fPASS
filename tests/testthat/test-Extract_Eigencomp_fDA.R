@@ -105,7 +105,6 @@ testthat::test_that("Extract_Eigencomp_fDA() estimates the eigenfunctions correc
 
 # Error checking
 testthat::test_that("Extract_Eigencomp_fDA() throws an error when obs.design is specified wrongly",{
-  testthat::local_edition(3)
   alloc.ratio  <- c(1,1)
   mean.diff    <- function(t) {1 * (t^3)};
   eig.fun <- function(t, k) {
@@ -114,7 +113,7 @@ testthat::test_that("Extract_Eigencomp_fDA() throws an error when obs.design is 
     return(ef)
   }
   eig.fun.vec  <- function(t){cbind(eig.fun(t, 1),eig.fun(t, 2))}
-  testthat::expect_snapshot(error = TRUE,{
+  ttestthat::expect_error(
     fPASS::Extract_Eigencomp_fDA(obs.design = list("design" = "functional",
                                             "visit.schedule" = seq(0.1, 0.9, length.out=7),
                                             "visit.window" = 0.05),
@@ -126,7 +125,7 @@ testthat::test_that("Extract_Eigencomp_fDA() throws an error when obs.design is 
                           alloc.ratio = c(1,1),
                           fpca_method = "fpca.sc", data.driven.scores = FALSE,
                           mean_diff_add_args = list(), fpca_optns = list("pve" = 0.95))
-    })
+  )
   testthat::expect_error(
     fPASS::Extract_Eigencomp_fDA(obs.design = list("design" = "functional",
                                             "visit.schedule" = seq(0.1, 0.9, length.out=7),
