@@ -20,7 +20,8 @@ testthat::test_that("PASS_Proj_Test_ufDA() gives power equal to
                                                       eval_SS = 5000, alloc.ratio = c(1,1),
                                                       fpca_method = "fpca.sc",
                                                       mean_diff_add_args=list(delta=0),
-                                                      fpca_optns = list(pve = 0.95), npc_to_use = 2)
+                                                      fpca_optns = list(pve = 0.95), npc_to_use = 2,
+                                                      nsim =1e4)
                       print(f$power_value)
                       testthat::expect_lte(f$power_value, 0.05 + 2*sqrt(0.05*0.95/5000))
                     })

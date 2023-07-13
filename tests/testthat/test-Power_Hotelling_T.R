@@ -16,7 +16,7 @@ testthat::test_that("pHotellingT() provides the correct power
             cutoff      <- seq(0,30, length.out=20)
             the_cdf     <- round(fPASS::pHotellingT(cutoff, n1+n2, mu1 - mu2,
                                          sig1, sig2, alloc.ratio=c(2,1),
-                                         lower.tail=FALSE),3)
+                                         lower.tail=FALSE, nsim=1e4),3)
             emp_samples <- replicate(B, {y1      <- MASS::mvrnorm(n=n1, mu=mu1, Sigma=sig1)
             y2          <- MASS::mvrnorm(n=n2, mu=mu2, Sigma=sig2)
             ht.test     <- Hotelling::hotelling.test(y1, y2, var.equal = TRUE)
@@ -44,7 +44,7 @@ testthat::test_that("pHotellingT() provides the correct power
                       cutoff      <- seq(0,30, length.out=20)
                       the_cdf     <- round(fPASS::pHotellingT(cutoff, n1+n2, mu1 - mu2,
                                            sig1, sig2, alloc.ratio=c(2,1),
-                                           lower.tail=FALSE),3)
+                                           lower.tail=FALSE,nsim=1e4),3)
                       emp_samples <- replicate(B, {y1      <- MASS::mvrnorm(n=n1, mu=mu1, Sigma=sig1)
                       y2          <- MASS::mvrnorm(n=n2, mu=mu2, Sigma=sig2)
                       ht.test     <- Hotelling::hotelling.test(y1, y2, var.equal = TRUE)
@@ -72,7 +72,7 @@ testthat::test_that("pHotellingT() provides the correct power
                       cutoff      <- seq(0,30, length.out=20)
                       the_cdf     <- round(fPASS::pHotellingT(cutoff, n1+n2, mu1 - mu2,
                                                    sig1, sig2, alloc.ratio=c(2,1),
-                                                   lower.tail=FALSE),3)
+                                                   lower.tail=FALSE,nsim=1e4),3)
                       emp_samples <- replicate(B, {y1      <- MASS::mvrnorm(n=n1, mu=mu1, Sigma=sig1)
                       y2          <- MASS::mvrnorm(n=n2, mu=mu2, Sigma=sig2)
                       ht.test     <- Hotelling::hotelling.test(y1, y2, var.equal = TRUE)
@@ -100,7 +100,7 @@ testthat::test_that("pHotellingT() provides the correct power
                       cutoff      <- seq(0,30, length.out=20)
                       the_cdf     <- round(fPASS::pHotellingT(cutoff, n1+n2, mu1 - mu2,
                                                sig1, sig2, alloc.ratio=c(2,1),
-                                               lower.tail=FALSE),3)
+                                               lower.tail=FALSE,nsim=1e4),3)
                       emp_samples <- replicate(B, {y1      <- MASS::mvrnorm(n=n1, mu=mu1, Sigma=sig1)
                       y2          <- MASS::mvrnorm(n=n2, mu=mu2, Sigma=sig2)
                       ht.test     <- Hotelling::hotelling.test(y1, y2, var.equal = TRUE)

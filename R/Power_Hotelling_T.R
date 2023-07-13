@@ -319,15 +319,7 @@ Sim_HotellingT_unequal_var <- function(total_sample_size, mean_diff,
 #' @author Salil Koner \cr Maintainer: Salil Koner
 #' \email{salil.koner@@duke.edu}
 #' @param q The point at which the CDF needs to be evaluated
-#' @param total_sample_size Target sample size, must be a positive integer.
-#' @param mean_diff The difference in the mean vector between the two groups, must be a vector.
-#' @param sig1 The true (or estimate) of covariance matrix for the first group. Must be symmetric
-#' (\code{is.symmetric(sig1) == TRUE}) and positive definite (\code{chol(sig1)} without an error!).
-#' @param sig2 The true (or estimate) of covariance matrix for the second group. Must be symmetric
-#' (\code{is.symmetric(sig2) == TRUE}) and positive definite (\code{chol(sig2)} without an error!).
-#' @param alloc.ratio Allocation of total sample size into the two groups. Must set as a vector of two
-#'                    positive numbers. For equal allocation it should be put as c(1,1), for non-equal
-#'                    allocation one can put c(2,1) or c(3,1) etc.
+#' @inheritParams Sim_HotellingT_unequal_var
 #' @param lower.tail if TRUE, the CDF is returned, otherwise right tail probability is returned.
 #' @return The CDF of the Hotelling T statistic, if \code{lower.tail == TRUE},
 #' otherwise the right tail probability is returned.
@@ -349,11 +341,11 @@ Sim_HotellingT_unequal_var <- function(total_sample_size, mean_diff,
 #' cutoff      <- seq(0,30, length.out=20)
 #' the_cdf     <- round(pHotellingT(cutoff, n1+n2, mu1 - mu2,
 #'                                  sig1, sig2, alloc.ratio=c(2,1),
-#'                                  lower.tail=FALSE),3)
+#'                                  lower.tail=FALSE, nsim = 1e4),3)
 #'
 pHotellingT <- function(q, total_sample_size, mean_diff,
                             sig1, sig2, alloc.ratio=c(1,1),
-                            lower.tail=TRUE){
+                            lower.tail=TRUE, nsim=1e4){
 
   #*********************************************************************************************%
   #*                                  Missing argument checking                                 %
@@ -416,7 +408,7 @@ pHotellingT <- function(q, total_sample_size, mean_diff,
     alt.samples  <- Sim_HotellingT_unequal_var(total_sample_size=total_sample_size,
                                                mean_diff=mean_diff,
                                                sig1=sig1, sig2=sig2,
-                                               alloc.ratio=alloc.ratio, nsim=1e4)
+                                               alloc.ratio=alloc.ratio, nsim=nsim)
     cdf          <- sapply(as.vector(q), function(cc) mean(alt.samples$samples <= cc, na.rm=TRUE))
     if(lower.tail) prob <- cdf
     else prob <- 1 - cdf

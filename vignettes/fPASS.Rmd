@@ -100,7 +100,7 @@ sig.level  <- 0.05
 * `eval_SS` : The number of independent and identically distributed (i.i.d) replication of subjects based on which the eigencomponents of the covariance process will be estimated empirically. This should be set as a large number in order to correctly estimate the true number of eigenfunctions and to get enough precision on the estimated eigencomponents. Setting a small value of `eval_SS` might lead to incorrect detection of large number of eigenfunctions, and then the power of the projection-based test will incorrectly inflated because the dimension and the magnitude of projection-vector gets arbitrarily large, as a result of projecting the mean difference function on additionally detected eigenfunctions (possibly with very small eigenvalues). Users must remember that the **computation time of the function is directly proportional to the size of `eval_SS`, so they must expect that the run time will be higher if `eval_SS` is larger, especially when `fpca.method` is set as 'face'**, which is described next item. 
 
 ```{r, eval=TRUE}
-eval_SS <- 10000
+eval_SS <- 5000
 ```
 
 * `fpca_method` : The module for functional principal component analysis that will be used to estimate the eigencomponents, can be any one of
@@ -128,6 +128,8 @@ fpca_optns  <- list("pve" = 0.95)
 mean_diff_add_args  <- list() 
 ```
 
+* `nsim` : The number of samples to be generated from the alternate distribution of the Hotelling T statistic to accurate compute the power. The default value is set at 10000, but the user can change it in the function. In our example, we have used `nsim` $=1000` for faster computation of the vignette. 
+
 #####  Distribution of minimum sample size using `fPASS::fpca.sc()` function:
 
 Now that we have explained how to specify each and every arguments of `fPASS::PASS_Proj_Test_ufDA()` function, we will compute the minimum sample size required. However, as the testing procedure internally computes the eigenfunctions based on large number of samples and then uses the estimated eigenfunctions to compute the PASS, the computed power and the minimum sample size will be different due to the fact that the estimated eigenfunctions are different at each run because of sampling variation. Therefore, it is important to run the function `fPASS::PASS_Proj_Test_ufDA()` for few iterations to see how the sampling variation affects the computed power or sample size. In this example, we run the same function in parallel for about 10 times, and present the percentiles of the estimated sample size. It is recommended to run the the function at least about 50 to 100 times and use the median of these computed sample sizes obtained after a reasonable number of iteration, as a point estimate of the minimum sample size and the interquartile range (IQR) as a valid measure of range of the sample size that could be considered. From a practical perspective, depending on the budget of the trial, one can choose the minimum number of subjects that will be enrolled for the trial based on the value of IQR.
@@ -144,7 +146,8 @@ required_sample_size <- foreach(i=1:10, .combine='c', .packages = "fPASS") %do% 
                             missing_percent = missing_percent, eval_SS = eval_SS,
                             alloc.ratio = alloc.ratio, fpca_method = fpca_method,
                             mean_diff_add_args = mean_diff_add_args,
-                            fpca_optns = fpca_optns, npc_to_use = NULL)$required_SS
+                            fpca_optns = fpca_optns, npc_to_use = NULL,
+                            nsim = 1e3)$required_SS
 }
 ```
 
@@ -179,7 +182,7 @@ eigencomp <- Extract_Eigencomp_fDA(nobs_per_subj = nobs_per_subj,
 print(lapply(eigenlist, function(x) x$est_eigenval))
 ```
 
-For a specified PVE of $95\%$, `fPASS::fpca.sc()` function detects two leading eigenfunction with non-zero eigenvalues for the covariance structure in most of the cases. Next, we see what happens by using `face::face.sparse()` function for the same PVE The `face::face.sparse()` function is much slower than the `fPASS::fpca.sc()`, so we have kept `eval_SS` argument at $1000$ to not significantly increase the run time of the vignette. The user are advised to use a large value of `eval_SS` in order to get high enough precision for the estimated eigenfunction. 
+For a specified PVE of $95\%$, `fPASS::fpca.sc()` function detects two leading eigenfunction with non-zero eigenvalues for the covariance structure in most of the cases. Next, we see what happens by using `face::face.sparse()` function for the same PVE The `face::face.sparse()` function is much slower than the `fPASS::fpca.sc()`, so we have kept `eval_SS` argument at $500$ to not significantly increase the run time of the vignette. The user are advised to use a large value of `eval_SS` in order to get high enough precision for the estimated eigenfunction. 
 
 #####  Estimate eigenfunctions using `face::face.sparse()` function
 
@@ -242,7 +245,8 @@ required_sample_size <- foreach(i=1:5, .combine='c', .packages = "fPASS") %do% {
                             missing_percent = missing_percent, eval_SS = 500,
                             alloc.ratio = alloc.ratio, fpca_method = fpca_method,
                             mean_diff_add_args = mean_diff_add_args,
-                            fpca_optns = fpca_optns, npc_to_use = npc_to_use)$required_SS
+                            fpca_optns = fpca_optns, npc_to_use = npc_to_use,
+                            nsim = 1e3)$required_SS
 }
 ```
 
@@ -276,7 +280,7 @@ required_sample_size <- foreach(i=1:10, .combine='c', .packages = "fPASS") %do% 
                             missing_percent = missing_percent, eval_SS = eval_SS,
                             alloc.ratio = alloc.ratio, fpca_method = fpca_method,
                             mean_diff_add_args = mean_diff_add_args,
-                            fpca_optns = fpca_optns, npc_to_use = 2)$required_SS
+                            fpca_optns = fpca_optns, npc_to_use = 2, nsim = 1e3)$required_SS
 }
 ```
 

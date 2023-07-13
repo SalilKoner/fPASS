@@ -23,7 +23,8 @@ PASS_Proj_Test_ufDA(
   mean_diff_add_args = list(),
   fpca_optns = list(pve = 0.95),
   npc_to_use = NULL,
-  return.eigencomp = FALSE
+  return.eigencomp = FALSE,
+  nsim = 10000
 )
 }
 \arguments{
@@ -144,6 +145,9 @@ which case all the eigenfunctions estimated from the data will be used.}
 
 \item{return.eigencomp}{Indicates whether to return the eigencomponents obtained from the fPCA
 on the large data with sample size equal to \code{eval_SS}. Default is \code{FALSE}.}
+
+\item{nsim}{The number of samples to be generated from the alternate distribution of
+Hotelling T statistic. Default value is 10000.}
 }
 \value{
 A list with following elements, \code{power_value} if \code{is.null(target.power)}
@@ -229,7 +233,8 @@ pow  <- PASS_Proj_Test_ufDA(sample_size = 100, target.power = NULL, sig.level = 
                             missing_percent = missing_percent, eval_SS = 1000,
                             alloc.ratio = c(1,1),
                             fpca_method = "fpca.sc",
-                            mean_diff_add_args = list(), fpca_optns = list("pve" = 0.95))
+                            mean_diff_add_args = list(), fpca_optns = list("pve" = 0.95),
+                            nsim = 1e3)
 
 print(pow$power_value)
 
@@ -257,7 +262,8 @@ pow  <- PASS_Proj_Test_ufDA(sample_size = NULL, target.power = 0.8,
                             nobs_per_subj = nobs_per_subj, missing_type = missing_type,
                             missing_percent = missing_percent, eval_SS = 1000,
                             alloc.ratio = alloc.ratio, fpca_method = "fpca.sc",
-                            mean_diff_add_args = list(), fpca_optns = list(pve = 0.95))
+                            mean_diff_add_args = list(), fpca_optns = list(pve = 0.95),
+                            nsim = 1e3)
 
 print(pow$required_SS)
 

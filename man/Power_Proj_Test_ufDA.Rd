@@ -15,7 +15,8 @@ Power_Proj_Test_ufDA(
   weights,
   sig.level = 0.05,
   alloc.ratio = c(1, 1),
-  npc_to_pick = ncol(eigen_matrix)
+  npc_to_pick = ncol(eigen_matrix),
+  nsim = 10000
 )
 }
 \arguments{
@@ -43,16 +44,20 @@ Must be symmetric (\code{is.symmetric(scores_var2) == TRUE}) and positive defini
 for each \eqn{k=1,\dots, K}. The integral is numerically approximated as
 \code{sum(mean_diff(argvals)*eigen_matrix[,k]*weights)}.}
 
-\item{sig.level}{Significance level of the test, default set at 0.05, must be less than 0.2.
-This is used to compute the critical value of the test.}
+\item{sig.level}{Significance level of the test, default set at 0.05, must be less than 0.2.}
 
-\item{alloc.ratio}{Allocation of total sample size into the two groups. Must set as a vector of two
-positive numbers. For equal allocation it should be put as c(1,1), for non-equal
-allocation one can put c(2,1) or c(3,1) etc. Default set as c(1,1).}
+\item{alloc.ratio}{The allocation ratio of samples in the each group. Note that the eigenfunctions
+will still be estimated based on the total sample_size, however, the variance
+of the \code{shrinkage} scores (which is required to compute the power function) will be
+estimated based on the allocation of the samples in each group. Must be given as vector of
+length 2. Default value is set at \code{c(1, 1)}, indicating equal sample size.}
 
 \item{npc_to_pick}{Number of eigenfunction to be used to compute the power. Typically this is
 becomes handy when the user want to discard few of the last eigenfunctions,
 typically with a very small eigenvalues.}
+
+\item{nsim}{The number of samples to be generated from the alternate distribution of
+Hotelling T statistic. Default value is 10000.}
 }
 \value{
 Power of the projection-based test for specified difference in the mean function
@@ -106,7 +111,8 @@ func_power     <- Power_Proj_Test_ufDA(total_sample_size=n,
 argvals=working.grid,
 mean_vector = mean_vector, eigen_matrix = eigen_matrix,
 scores_var1 = sig1, scores_var2= sig2, weights = gauss.quad.pts$wt,
-sig.level=alp, alloc.ratio = c(1,1), npc_to_pick=ncol(eigen_matrix))
+sig.level=alp, alloc.ratio = c(1,1), npc_to_pick=ncol(eigen_matrix),
+nsim = 5e3)
 
 }
 \references{

@@ -11,7 +11,8 @@ pHotellingT(
   sig1,
   sig2,
   alloc.ratio = c(1, 1),
-  lower.tail = TRUE
+  lower.tail = TRUE,
+  nsim = 10000
 )
 }
 \arguments{
@@ -32,6 +33,8 @@ positive numbers. For equal allocation it should be put as c(1,1), for non-equal
 allocation one can put c(2,1) or c(3,1) etc.}
 
 \item{lower.tail}{if TRUE, the CDF is returned, otherwise right tail probability is returned.}
+
+\item{nsim}{The number of samples to be generated from the alternate distribution.}
 }
 \value{
 The CDF of the Hotelling T statistic, if \code{lower.tail == TRUE},
@@ -77,7 +80,7 @@ sig2        <- sig1
 cutoff      <- seq(0,30, length.out=20)
 the_cdf     <- round(pHotellingT(cutoff, n1+n2, mu1 - mu2,
                                  sig1, sig2, alloc.ratio=c(2,1),
-                                 lower.tail=FALSE),3)
+                                 lower.tail=FALSE, nsim = 1e4),3)
 
 }
 \seealso{

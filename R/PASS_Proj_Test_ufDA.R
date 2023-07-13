@@ -42,6 +42,8 @@
 #' which case all the eigenfunctions estimated from the data will be used.
 #' @param return.eigencomp Indicates whether to return the eigencomponents obtained from the fPCA
 #' on the large data with sample size equal to \code{eval_SS}. Default is \code{FALSE}.
+#' @param nsim The number of samples to be generated from the alternate distribution of
+#'             Hotelling T statistic. Default value is 10000.
 #' @return A list with following elements, \code{power_value} if \code{is.null(target.power)}
 #' then returns the power of the test when n equal to \code{sample_size}, otherwise \code{required_SS},
 #' the sample size required to achieve the power of the test at \code{target.power}.
@@ -79,7 +81,8 @@
 #'                             missing_percent = missing_percent, eval_SS = 1000,
 #'                             alloc.ratio = c(1,1),
 #'                             fpca_method = "fpca.sc",
-#'                             mean_diff_add_args = list(), fpca_optns = list("pve" = 0.95))
+#'                             mean_diff_add_args = list(), fpca_optns = list("pve" = 0.95),
+#'                             nsim = 1e3)
 #'
 #' print(pow$power_value)
 #'
@@ -107,7 +110,8 @@
 #'                             nobs_per_subj = nobs_per_subj, missing_type = missing_type,
 #'                             missing_percent = missing_percent, eval_SS = 1000,
 #'                             alloc.ratio = alloc.ratio, fpca_method = "fpca.sc",
-#'                             mean_diff_add_args = list(), fpca_optns = list(pve = 0.95))
+#'                             mean_diff_add_args = list(), fpca_optns = list(pve = 0.95),
+#'                             nsim = 1e3)
 #'
 #' print(pow$required_SS)
 #'
@@ -120,7 +124,8 @@ PASS_Proj_Test_ufDA  <- function(sample_size, target.power, sig.level = 0.05,
                                  fpca_method = c("fpca.sc", "face"),
                                  mean_diff_add_args=list(),
                                  fpca_optns = list(pve = 0.95),
-                                 npc_to_use = NULL, return.eigencomp = FALSE){
+                                 npc_to_use = NULL, return.eigencomp = FALSE,
+                                 nsim = 1e4){
 
   testthat::expect_equal(xor(!is.null(sample_size), !is.null(target.power)), TRUE,
                          info = "Only one of sample_size or target.power should be NULL")
@@ -159,14 +164,14 @@ PASS_Proj_Test_ufDA  <- function(sample_size, target.power, sig.level = 0.05,
                            mean_vector = est_eigencomp$mean_diff_vec, eigen_matrix = est_eigencomp$est_eigenfun,
                            scores_var1 = est_eigencomp$score_var1, scores_var2 = est_eigencomp$score_var2,
                            weights = est_eigencomp$weights, sig.level=sig.level, alloc.ratio = alloc.ratio,
-                           npc_to_pick = npc_to_use) - target.power
-    }, c(max(3,min_search + 1, npc_to_use+2), 5000), tol = .Machine$double.eps^0.25, extendInt = "upX")$root
+                           npc_to_pick = npc_to_use, nsim = nsim) - target.power
+    }, c(max(3,min_search + 1, npc_to_use+2), 1000), tol = .Machine$double.eps^0.25, extendInt = "upX")$root
   } else if (is.null(target.power)){
     power_value  <- Power_Proj_Test_ufDA(total_sample_size = sample_size, argvals = est_eigencomp$working.grid,
                                          mean_vector = est_eigencomp$mean_diff_vec, eigen_matrix = est_eigencomp$est_eigenfun,
                                          scores_var1 = est_eigencomp$score_var1, scores_var2 = est_eigencomp$score_var2,
                                          weights = est_eigencomp$weights, sig.level=sig.level, alloc.ratio = alloc.ratio,
-                                         npc_to_pick = npc_to_use)
+                                         npc_to_pick = npc_to_use, nsim = nsim)
   }
   if (is.null(sample_size)) ret.objects <- "required_SS" else ret.objects <- "power_value"
   if (return.eigencomp){
