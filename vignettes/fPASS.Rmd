@@ -134,7 +134,7 @@ Now that we have explained how to specify each and every arguments of `fPASS::PA
 
 ```{r, message=FALSE, results='hide'}
 library(foreach)
-required_sample_size <- foreach(i=1:10, .combine='c', .packages = "fPASS") %do% {
+required_sample_size <- foreach(i=1:5, .combine='c', .packages = "fPASS") %do% {
         mean_diff_fn <- mean_diff_fn
         PASS_Proj_Test_ufDA(sample_size = NULL, target.power = target.power,
                             sig.level = sig.level, nobs_per_subj = nobs_per_subj,
@@ -266,7 +266,7 @@ fpca_method <- "fpca.sc"
 eval_SS  <- 5000
 
 library(foreach)
-required_sample_size <- foreach(i=1:10, .combine='c', .packages = "fPASS") %do% {
+required_sample_size <- foreach(i=1:5, .combine='c', .packages = "fPASS") %do% {
         mean_diff_fn <- mean_diff_fn
         PASS_Proj_Test_ufDA(sample_size = NULL, target.power = target.power,
                             sig.level = sig.level, nobs_per_subj = nobs_per_subj,

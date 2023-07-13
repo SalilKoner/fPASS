@@ -113,7 +113,7 @@ testthat::test_that("Extract_Eigencomp_fDA() throws an error when obs.design is 
     return(ef)
   }
   eig.fun.vec  <- function(t){cbind(eig.fun(t, 1),eig.fun(t, 2))}
-  ttestthat::expect_error(
+  testthat::expect_error(
     fPASS::Extract_Eigencomp_fDA(obs.design = list("design" = "functional",
                                             "visit.schedule" = seq(0.1, 0.9, length.out=7),
                                             "visit.window" = 0.05),
