@@ -48,8 +48,9 @@ If you want to install the package with the vignettes to be built, then
 run
 
 ``` r
-# Install development version from GitHub
-devtools::install_github("SalilKoner/fPASS", build_vignettes = TRUE) # Vignettes takes about 20 minutes to run. 
+# Install development version from GitHub with the vignettes.
+# Vignettes takes about 5-7 minutes to run. 
+devtools::install_github("SalilKoner/fPASS", build_vignettes = TRUE) 
 ```
 
 followed by `browseVignettes("fPASS")` to see the application of the
