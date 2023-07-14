@@ -3,3 +3,4 @@
                          of Mean Difference under Repeated Measures Design : Version ",
                         utils::packageVersion("fPASS"))
 }
+
