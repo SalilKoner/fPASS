@@ -6,7 +6,7 @@
 [![R-CMD-check](https://github.com/SalilKoner/fPASS/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/SalilKoner/fPASS/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-# fPASS: Power and Sample size for projection-based testing under a repeatedly measured design
+# fPASS: Power and Sample Size Analysis for Projection-Based Testing of Mean Difference under Repeated Measures Design
 
 [Salil Koner](https://biostat.duke.edu/profile/salil-koner)
 
