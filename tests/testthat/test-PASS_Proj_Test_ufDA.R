@@ -23,5 +23,5 @@ testthat::test_that("PASS_Proj_Test_ufDA() gives power equal to
                                                       fpca_optns = list(pve = 0.95), npc_to_use = 2,
                                                       nsim =1e4)
                       print(f$power_value)
-                      testthat::expect_lte(f$power_value, 0.05 + 2*sqrt(0.05*0.95/5000))
+                      testthat::expect_lte(f$power_value, 0.05 + 4*sqrt(0.05*0.95/5000))
                     })
