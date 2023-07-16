@@ -524,7 +524,7 @@ Extract_Eigencomp_fDA  <- function(nobs_per_subj, obs.design, mean_diff_fnm,
   if (data.driven.scores){
     gamDat         <- data.frame("subj"=rep(1:n.new, m), "y" = unlist(Ylist),
                                  "argvals" = unlist(tvals), "Group" = rep(g, m)) %>%
-                      mutate(trt.ind = as.numeric(g))
+                      mutate(trt.ind = as.numeric(Group))
     fit.m          <- mgcv::gam(y ~ s(argvals, k=12) + s(argvals, k=12, by=trt.ind), data=gamDat)
     y_mean         <- gamDat$y - as.vector(mgcv::predict.gam(fit.m, newdata=gamDat %>% mutate(trt.ind = 0)))
     fuldat         <- gamDat %>% dplyr::select(subj, argvals) %>% dplyr::mutate(y = y_mean)
