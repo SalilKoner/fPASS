@@ -79,7 +79,7 @@
 #'                             sigma2.e = sigma2.e, nobs_per_subj = nobs_per_subj,
 #'                             missing_type = missing_type,
 #'                             missing_percent = missing_percent, eval_SS = 1000,
-#'                             alloc.ratio = c(1,1),
+#'                             alloc.ratio = c(1,1), nWgrid = 201,
 #'                             fpca_method = "fpca.sc",
 #'                             mean_diff_add_args = list(), fpca_optns = list("pve" = 0.95),
 #'                             nsim = 1e3)
@@ -111,7 +111,7 @@
 #'                             missing_percent = missing_percent, eval_SS = 1000,
 #'                             alloc.ratio = alloc.ratio, fpca_method = "fpca.sc",
 #'                             mean_diff_add_args = list(), fpca_optns = list(pve = 0.95),
-#'                             nsim = 1e3)
+#'                             nsim = 1e3, nWgrid = 201)
 #'
 #' print(pow$required_SS)
 #'
@@ -124,6 +124,7 @@ PASS_Proj_Test_ufDA  <- function(sample_size, target.power, sig.level = 0.05,
                                  fpca_method = c("fpca.sc", "face"),
                                  mean_diff_add_args=list(),
                                  fpca_optns = list(pve = 0.95),
+                                 nWgrid = 201,
                                  npc_to_use = NULL, return.eigencomp = FALSE,
                                  nsim = 1e4){
 
@@ -148,7 +149,7 @@ PASS_Proj_Test_ufDA  <- function(sample_size, target.power, sig.level = 0.05,
                                          missing_type = missing_type, missing_percent = missing_percent,
                                          eval_SS = eval_SS, alloc.ratio = alloc.ratio, fpca_method = fpca_method,
                                          data.driven.scores = FALSE, mean_diff_add_args = mean_diff_add_args,
-                                         fpca_optns = fpca_optns)
+                                         fpca_optns = fpca_optns, nWgrid = nWgrid)
   if(is.null(npc_to_use)) npc_to_use <- ncol(est_eigencomp$est_eigenfun) else{
     npc_to_use  <- min(npc_to_use, ncol(est_eigencomp$est_eigenfun))
   }

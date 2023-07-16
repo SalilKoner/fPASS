@@ -17,6 +17,7 @@ Extract_Eigencomp_fDA(
   eval_SS = 5000,
   alloc.ratio = c(1, 1),
   fpca_method = c("fpca.sc", "face"),
+  nWgrid = 201,
   data.driven.scores = FALSE,
   mean_diff_add_args = list(),
   fpca_optns = list()
@@ -113,6 +114,12 @@ when the measurement errors is estimated to be zero, we wrote out a similar func
 where we corrected those error in current version of \code{\link[refund:fpca.sc]{refund::fpca.sc()}}. Check out
 the \code{\link[=fpca_sc]{fpca_sc()}} function for details. If \code{fpca_method == 'face'}, then
 the eigencomponents are estimated using \code{\link[face:face.sparse]{face::face.sparse()}} function.}
+
+\item{nWgrid}{The length of the working grid based in the domain of the function on which
+the eigenfunctions will be estimated. The actual working grid will be calculated using
+the \code{\link[gss:gauss.quad]{gss::gauss.quad()}} function (so that it facilitates the numerical integration of
+the eigenfunction with the mean function using gaussian quadrature rule)
+where the length of the grid will be nWgrid. Default value is 201.}
 
 \item{data.driven.scores}{Indicates whether the scores are estimated from the full data, WITHOUT
 assuming the mean function is unknown, rather the mean function is estimated using
@@ -231,7 +238,7 @@ cov.par = list("var" = sigma2, "cor" = cor.str),
 sigma2.e = sigma2.e, nobs_per_subj = nobs_per_subj,
 missing_type = missing_type,
 missing_percent = missing_percent, eval_SS = 1000,
-alloc.ratio = c(1,1),
+alloc.ratio = c(1,1), nWgrid = 201,
 fpca_method = "fpca.sc", data.driven.scores = FALSE,
 mean_diff_add_args = list(), fpca_optns = list(pve = 0.95))
 
@@ -256,7 +263,7 @@ eigencomp  <- Extract_Eigencomp_fDA(obs.design = obs.design,
  sigma2.e = sigma2.e, nobs_per_subj = nobs_per_subj,
  missing_type = missing_type,
  missing_percent = missing_percent, eval_SS = 1000,
- alloc.ratio = alloc.ratio,
+ alloc.ratio = alloc.ratio, nWgrid = 201,
  fpca_method = "fpca.sc", data.driven.scores = FALSE,
  mean_diff_add_args = list(), fpca_optns = list(pve = 0.95))
 

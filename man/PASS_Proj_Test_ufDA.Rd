@@ -22,6 +22,7 @@ PASS_Proj_Test_ufDA(
   fpca_method = c("fpca.sc", "face"),
   mean_diff_add_args = list(),
   fpca_optns = list(pve = 0.95),
+  nWgrid = 201,
   npc_to_use = NULL,
   return.eigencomp = FALSE,
   nsim = 10000
@@ -140,6 +141,12 @@ The names of the list must not match either of
 for \code{fpca_method == 'face'} and must not match either of
 \code{c('ydata', 'Y.pred')} for  \code{fpca_method == 'fpca.sc'}.}
 
+\item{nWgrid}{The length of the working grid based in the domain of the function on which
+the eigenfunctions will be estimated. The actual working grid will be calculated using
+the \code{\link[gss:gauss.quad]{gss::gauss.quad()}} function (so that it facilitates the numerical integration of
+the eigenfunction with the mean function using gaussian quadrature rule)
+where the length of the grid will be nWgrid. Default value is 201.}
+
 \item{npc_to_use}{Number of eigenfunctions to use to compute the power. Default is NULL, in
 which case all the eigenfunctions estimated from the data will be used.}
 
@@ -231,7 +238,7 @@ pow  <- PASS_Proj_Test_ufDA(sample_size = 100, target.power = NULL, sig.level = 
                             sigma2.e = sigma2.e, nobs_per_subj = nobs_per_subj,
                             missing_type = missing_type,
                             missing_percent = missing_percent, eval_SS = 1000,
-                            alloc.ratio = c(1,1),
+                            alloc.ratio = c(1,1), nWgrid = 201,
                             fpca_method = "fpca.sc",
                             mean_diff_add_args = list(), fpca_optns = list("pve" = 0.95),
                             nsim = 1e3)
@@ -263,7 +270,7 @@ pow  <- PASS_Proj_Test_ufDA(sample_size = NULL, target.power = 0.8,
                             missing_percent = missing_percent, eval_SS = 1000,
                             alloc.ratio = alloc.ratio, fpca_method = "fpca.sc",
                             mean_diff_add_args = list(), fpca_optns = list(pve = 0.95),
-                            nsim = 1e3)
+                            nsim = 1e3, nWgrid = 201)
 
 print(pow$required_SS)
 

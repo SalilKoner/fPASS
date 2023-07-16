@@ -14,7 +14,7 @@ testthat::test_that("Extract_Eigencomp_fDA() estimates the eigenfunctions correc
                           sigma2.e = 0.001, nobs_per_subj = 4:7,
                           missing_type = "nomiss",
                           missing_percent = 0, eval_SS = 5000,
-                          alloc.ratio = c(1,1),
+                          alloc.ratio = c(1,1), nWgrid = 201,
                           fpca_method = "fpca.sc", data.driven.scores = FALSE,
                           mean_diff_add_args = list(), fpca_optns = list("pve" = 0.95))
     testthat::expect_lte(max(colSums(sweep({(abs(eigencomp$est_eigenfun[,1:2]) -
@@ -39,7 +39,7 @@ testthat::test_that("Extract_Eigencomp_fDA() estimates the eigenfunctions correc
                                                          sigma2.e = 0.001, nobs_per_subj = 8,
                                                          missing_type = "nomiss",
                                                          missing_percent = 0, eval_SS = 5000,
-                                                         alloc.ratio = c(1,1),
+                                                         alloc.ratio = c(1,1), nWgrid = 201,
                                                          fpca_method = "fpca.sc", data.driven.scores = FALSE,
                                                          mean_diff_add_args = list(), fpca_optns = list("pve" = 0.95))
                       testthat::expect_lte(max(colSums(sweep({(abs(eigencomp$est_eigenfun[,1:2]) -
@@ -63,7 +63,7 @@ testthat::test_that("Extract_Eigencomp_fDA() estimates the eigenfunctions correc
                                                          sigma2.e = 0.001, nobs_per_subj = 4:7,
                                                          missing_type = "nomiss",
                                                          missing_percent = 0, eval_SS = 5000,
-                                                         alloc.ratio = c(1,1),
+                                                         alloc.ratio = c(1,1), nWgrid = 201,
                                                          fpca_method = "fpca.sc", data.driven.scores = FALSE,
                                                          mean_diff_add_args = list(), fpca_optns = list("pve" = 0.95
                                                                                                         #calculate.scores = FALSE,
@@ -91,7 +91,7 @@ testthat::test_that("Extract_Eigencomp_fDA() estimates the eigenfunctions correc
                                                          sigma2.e = 0.001, nobs_per_subj = 8,
                                                          missing_type = "nomiss",
                                                          missing_percent = 0, eval_SS = 5000,
-                                                         alloc.ratio = c(1,1),
+                                                         alloc.ratio = c(1,1), nWgrid = 201,
                                                          fpca_method = "fpca.sc", data.driven.scores = FALSE,
                                                          mean_diff_add_args = list(), fpca_optns = list("pve" = 0.95
                                                                                                         #calculate.scores = FALSE,
@@ -122,7 +122,7 @@ testthat::test_that("Extract_Eigencomp_fDA() throws an error when obs.design is 
                           sigma2.e = 0.001, nobs_per_subj = 8,
                           missing_type = "nomiss",
                           missing_percent = 0, eval_SS = 100,
-                          alloc.ratio = c(1,1),
+                          alloc.ratio = c(1,1), nWgrid = 201,
                           fpca_method = "fpca.sc", data.driven.scores = FALSE,
                           mean_diff_add_args = list(), fpca_optns = list("pve" = 0.95))
   )
@@ -135,7 +135,7 @@ testthat::test_that("Extract_Eigencomp_fDA() throws an error when obs.design is 
                           sigma2.e = 0.001, nobs_per_subj = 8,
                           missing_type = "nomiss",
                           missing_percent = 0, eval_SS = 100,
-                          alloc.ratio = c(1,1),
+                          alloc.ratio = c(1,1), nWgrid = 201,
                           fpca_method = "fpca.sc", data.driven.scores = FALSE,
                           mean_diff_add_args = list(), fpca_optns = list("pve" = 0.95))
   )

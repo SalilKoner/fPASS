@@ -150,6 +150,11 @@
 #' where we corrected those error in current version of [refund::fpca.sc()]. Check out
 #' the [fPASS::fpca_sc()] function for details. If \code{fpca_method == 'face'}, then
 #' the eigencomponents are estimated using [face::face.sparse()] function.
+#' @param nWgrid The length of the working grid based in the domain of the function on which
+#'        the eigenfunctions will be estimated. The actual working grid will be calculated using
+#'        the [gss::gauss.quad()] function (so that it facilitates the numerical integration of
+#'        the eigenfunction with the mean function using gaussian quadrature rule)
+#'        where the length of the grid will be nWgrid. Default value is 201.
 #' @param data.driven.scores Indicates whether the scores are estimated from the full data, WITHOUT
 #'        assuming the mean function is unknown, rather the mean function is estimated using
 #'        [mgcv::gam()] function.
@@ -214,7 +219,7 @@
 #' sigma2.e = sigma2.e, nobs_per_subj = nobs_per_subj,
 #' missing_type = missing_type,
 #' missing_percent = missing_percent, eval_SS = 1000,
-#' alloc.ratio = c(1,1),
+#' alloc.ratio = c(1,1), nWgrid = 201,
 #' fpca_method = "fpca.sc", data.driven.scores = FALSE,
 #' mean_diff_add_args = list(), fpca_optns = list(pve = 0.95))
 #'
@@ -239,7 +244,7 @@
 #'  sigma2.e = sigma2.e, nobs_per_subj = nobs_per_subj,
 #'  missing_type = missing_type,
 #'  missing_percent = missing_percent, eval_SS = 1000,
-#'  alloc.ratio = alloc.ratio,
+#'  alloc.ratio = alloc.ratio, nWgrid = 201,
 #'  fpca_method = "fpca.sc", data.driven.scores = FALSE,
 #'  mean_diff_add_args = list(), fpca_optns = list(pve = 0.95))
 #'
@@ -249,6 +254,7 @@ Extract_Eigencomp_fDA  <- function(nobs_per_subj, obs.design, mean_diff_fnm,
                                    missing_percent = 0,
                                    eval_SS = 5000, alloc.ratio = c(1,1),
                                    fpca_method = c("fpca.sc", "face"),
+                                   nWgrid = 201,
                                    data.driven.scores = FALSE,
                                    mean_diff_add_args=list(),
                                    fpca_optns = list()){
@@ -310,7 +316,7 @@ Extract_Eigencomp_fDA  <- function(nobs_per_subj, obs.design, mean_diff_fnm,
     interval            <- c(0,1)
   }
 
-  ngrid          <- 201
+  ngrid          <- nWgrid
   gauss.quad.pts <- gss::gauss.quad(ngrid,interval) # evaluation points
   working.grid   <- gauss.quad.pts$pt
 

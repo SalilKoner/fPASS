@@ -25,4 +25,4 @@
 ## usethis namespace: end
 NULL
 
-if(getRversion() >= "2.15.1")  utils::globalVariables(c(".id.", "argvals", "subj", "y"))
+if(getRversion() >= "2.15.1")  utils::globalVariables(c(".id.", "argvals", "subj", "y", "Group"))

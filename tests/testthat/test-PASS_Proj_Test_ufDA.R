@@ -18,7 +18,7 @@ testthat::test_that("PASS_Proj_Test_ufDA() gives power equal to
                                                       missing_type = "nomiss",
                                                       missing_percent = 0,
                                                       eval_SS = 5000, alloc.ratio = c(1,1),
-                                                      fpca_method = "fpca.sc",
+                                                      fpca_method = "fpca.sc", nWgrid = 201,
                                                       mean_diff_add_args=list(delta=0),
                                                       fpca_optns = list(pve = 0.95), npc_to_use = 2,
                                                       nsim =1e4)
