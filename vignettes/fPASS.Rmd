@@ -128,7 +128,13 @@ fpca_optns  <- list("pve" = 0.95)
 mean_diff_add_args  <- list() 
 ```
 
-* `nsim` : The number of samples to be generated from the alternate distribution of the Hotelling T statistic to accurate compute the power. The default value is set at 10000, but the user can change it in the function. In our example, we have used `nsim` $=1000` for faster computation of the vignette. 
+* `nWgrid ` : The length of grid points used to estimate the eigenfunction and to approximately compute the projection $\int \mu_1(t) - \mu_2(t)\phi_k(t) dt$. We keep the default value of `nWgrid`, $201$. 
+
+```{r, eval=TRUE}
+nWgrid <- 201
+```
+
+* `nsim` : The number of samples to be generated from the alternate distribution of the Hotelling $T^2$ statistic to accurate compute the power. The default value is set at 10000, but the user can change it in the function. In our example, we have used `nsim`$=1000$ for faster computation of the vignette. 
 
 #####  Distribution of minimum sample size using `fPASS::fpca.sc()` function:
 

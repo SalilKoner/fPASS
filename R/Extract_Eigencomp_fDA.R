@@ -271,10 +271,9 @@ Extract_Eigencomp_fDA  <- function(nobs_per_subj, obs.design, mean_diff_fnm,
   }
   # Non-null argument checking
   non_null_arg_vals <- !sapply(rlang::call_args(call.f), is.null)
-  testthat::expect_true(all(non_null_arg_vals),
-                        info = paste0("NULL values are specified for the arguments: ",
-                                      paste0(rlang::call_args_names(call.f)[!non_null_arg_vals],
-                                             collapse = ", "), "\n") )
+  message(paste0("NULL values are specified for the arguments: ",
+                 paste0(rlang::call_args_names(call.f)[!non_null_arg_vals],
+                        collapse = ", "), "\n"))
   #*********************************************************************************************%
   #*                         Compatibility checking of arguments                                %
   #*********************************************************************************************%
@@ -318,7 +317,7 @@ Extract_Eigencomp_fDA  <- function(nobs_per_subj, obs.design, mean_diff_fnm,
 
   testthat::expect_false(is.null(nWgrid) & is.null(work.grid),
                         info = "Both of work.grid and nWgrid specified NULL. At least one of them
-                                must be specified.")
+                                must be non-NULL")
   if (!is.null(nWgrid)){
     testthat::expect_true(rlang::is_integerish(nWgrid, n=1, finite=TRUE) & (nWgrid > 1),
                           info = "nWgrid must be a positive integer greater than 1")

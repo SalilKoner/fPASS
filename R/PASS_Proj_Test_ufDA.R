@@ -184,12 +184,13 @@ PASS_Proj_Test_ufDA  <- function(sample_size, target.power, sig.level = 0.05,
   if(is.null(npc_to_use)) npc_to_use <- ncol(est_eigencomp$est_eigenfun) else{
     npc_to_use  <- min(npc_to_use, ncol(est_eigencomp$est_eigenfun))
   }
+
   min_search <- uniroot(function(n){
     Sum_of_Wishart_df(total_sample_size = n, alloc.ratio = alloc.ratio,
                              sig1 = est_eigencomp$score_var1[1:npc_to_use, 1:npc_to_use, drop=FALSE],
                              sig2 = est_eigencomp$score_var2[1:npc_to_use, 1:npc_to_use, drop=FALSE]) -
       npc_to_use + 1}, c(3, 5000), tol = .Machine$double.eps^0.75, extendInt = "upX")$root
-  # cat("min_search = ", min_search, "\n")
+
   if (is.null(sample_size)){
     required_SS <- uniroot(function(n){
       Power_Proj_Test_ufDA(total_sample_size = n, argvals = est_eigencomp$working.grid,
