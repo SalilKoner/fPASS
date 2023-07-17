@@ -144,8 +144,7 @@ for \code{fpca_method == 'face'} and must not match either of
 \item{nWgrid}{The length of the working grid based in the domain of the function on which
 the eigenfunctions will be estimated. The actual working grid will be calculated using
 the \code{\link[gss:gauss.quad]{gss::gauss.quad()}} function (so that it facilitates the numerical integration of
-the eigenfunction with the mean function using gaussian quadrature rule)
-where the length of the grid will be nWgrid. Default value is 201.}
+the eigenfunction with the mean function using gaussian quadrature rule)}
 
 \item{npc_to_use}{Number of eigenfunctions to use to compute the power. Default is NULL, in
 which case all the eigenfunctions estimated from the data will be used.}

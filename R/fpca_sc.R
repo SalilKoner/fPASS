@@ -258,7 +258,7 @@ fpca_sc <- function(Y = NULL, ydata = NULL, Y.pred = NULL, argvals = NULL, rando
   Y.tilde = Y.pred - matrix(mu, I.pred, D, byrow = TRUE)
   scores = matrix(NA, nrow = I.pred, ncol = npc)
   if (sigma2 == 0) {
-    cat("Measurement error variance is estimated to be zero, setting to 1e-6 \n")
+    message("Measurement error variance is estimated to be zero, setting to 1e-6 \n")
     sigma2 <- 1e-6
   }
   for (i.subj in 1:I.pred) {

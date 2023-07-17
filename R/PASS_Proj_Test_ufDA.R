@@ -38,6 +38,10 @@
 #'                     return power if \code{target.power} is NULL.
 #' @param sig.level Significance level of the test, default set at 0.05, must be less than 0.2.
 #' @inheritParams Extract_Eigencomp_fDA
+#' @param nWgrid The length of the working grid based in the domain of the function on which
+#'        the eigenfunctions will be estimated. The actual working grid will be calculated using
+#'        the [gss::gauss.quad()] function (so that it facilitates the numerical integration of
+#'        the eigenfunction with the mean function using gaussian quadrature rule)
 #' @param npc_to_use Number of eigenfunctions to use to compute the power. Default is NULL, in
 #' which case all the eigenfunctions estimated from the data will be used.
 #' @param return.eigencomp Indicates whether to return the eigencomponents obtained from the fPCA
@@ -131,25 +135,52 @@ PASS_Proj_Test_ufDA  <- function(sample_size, target.power, sig.level = 0.05,
   testthat::expect_equal(xor(!is.null(sample_size), !is.null(target.power)), TRUE,
                          info = "Only one of sample_size or target.power should be NULL")
   if(!is.null(sample_size)){
-    cat("Computing power of Projection-based test for total sample size = ", sample_size, "\n") # Added by SK on Jan 17
+    message("Computing power of Projection-based test for total sample size = ", sample_size, "\n") # Added by SK on Jan 17
     # argument checking: total_sample_size
     testthat::expect_true(rlang::is_integerish(sample_size, n=1, finite = TRUE) & (sample_size > 0),
                           info = "sample_size must be a positive integer with value greater than 10")
   }
   if(!is.null(target.power)){
-    cat("Computing sample size required to achieve power = ", target.power, "\n") # Added by SK on Jan 17
+    message("Computing sample size required to achieve power = ", target.power, "\n") # Added by SK on Jan 17
     testthat::expect_true(rlang::is_double(target.power, n=1, finite = TRUE) & (target.power <= 1) &
                           (target.power > 0),
                           info = "target.power must be a positive number between 0 and 1.")
   }
   testthat::expect_true(rlang::is_scalar_logical(return.eigencomp), info = "return.eigencomp must be logical")
   assign(mean_diff_fnm, match.fun(mean_diff_fnm))
+
+  testthat::expect_true(rlang::is_list(obs.design))
+  testthat::expect_true("design" %in% names(obs.design),
+                        info = "obs.design must be a named list with name 'design'")
+  design <- match.arg(obs.design$design, c("longitudinal", "functional"))
+  if (design == "functional") {
+    testthat::expect_true(rlang::is_integerish(nobs_per_subj, finite=TRUE),
+                          info = "nobs_per_subj must be a positive integer scalar/vector
+                          (for varying number of obs)")
+    testthat::expect_named(obs.design[!names(obs.design) %in% "design"], "fun.domain", ignore.order = TRUE,
+                           info = "Names of obs.design must be 'design' and 'fun.domain'.")
+    # argument checking: interval
+    interval <- obs.design[["fun.domain"]]
+    testthat::expect_true(rlang::is_double(interval, n=2, finite=TRUE) & !is.unsorted(interval),
+                          info = "obs.design$interval of the observation points must be
+                          two-length numeric vector")
+  } else{
+    interval <- c(0,1)
+  }
+  testthat::expect_true(rlang::is_integerish(nWgrid, n=1, finite=TRUE) & (nWgrid > 1),
+                        info = "nWgrid must be a positive integer greater than 1.")
+  if (nWgrid < 20){
+    warning("nWgrid is less than 20, consider increasing it to at least 20.")
+  }
+  gauss.quad.pts <- gss::gauss.quad(nWgrid, interval)
+  work.grid      <- gauss.quad.pts$pt
+
   est_eigencomp <- Extract_Eigencomp_fDA(obs.design = obs.design, mean_diff_fnm = mean_diff_fnm, cov.type = cov.type,
                                          cov.par = cov.par, sigma2.e = sigma2.e, nobs_per_subj = nobs_per_subj,
                                          missing_type = missing_type, missing_percent = missing_percent,
                                          eval_SS = eval_SS, alloc.ratio = alloc.ratio, fpca_method = fpca_method,
                                          data.driven.scores = FALSE, mean_diff_add_args = mean_diff_add_args,
-                                         fpca_optns = fpca_optns, nWgrid = nWgrid)
+                                         fpca_optns = fpca_optns, work.grid = work.grid, nWgrid = nWgrid)
   if(is.null(npc_to_use)) npc_to_use <- ncol(est_eigencomp$est_eigenfun) else{
     npc_to_use  <- min(npc_to_use, ncol(est_eigencomp$est_eigenfun))
   }
@@ -164,14 +195,14 @@ PASS_Proj_Test_ufDA  <- function(sample_size, target.power, sig.level = 0.05,
       Power_Proj_Test_ufDA(total_sample_size = n, argvals = est_eigencomp$working.grid,
                            mean_vector = est_eigencomp$mean_diff_vec, eigen_matrix = est_eigencomp$est_eigenfun,
                            scores_var1 = est_eigencomp$score_var1, scores_var2 = est_eigencomp$score_var2,
-                           weights = est_eigencomp$weights, sig.level=sig.level, alloc.ratio = alloc.ratio,
+                           weights = gauss.quad.pts$wt, sig.level=sig.level, alloc.ratio = alloc.ratio,
                            npc_to_pick = npc_to_use, nsim = nsim) - target.power
     }, c(max(3,min_search + 1, npc_to_use+2), 1000), tol = .Machine$double.eps^0.25, extendInt = "upX")$root
   } else if (is.null(target.power)){
     power_value  <- Power_Proj_Test_ufDA(total_sample_size = sample_size, argvals = est_eigencomp$working.grid,
                                          mean_vector = est_eigencomp$mean_diff_vec, eigen_matrix = est_eigencomp$est_eigenfun,
                                          scores_var1 = est_eigencomp$score_var1, scores_var2 = est_eigencomp$score_var2,
-                                         weights = est_eigencomp$weights, sig.level=sig.level, alloc.ratio = alloc.ratio,
+                                         weights = gauss.quad.pts$wt, sig.level=sig.level, alloc.ratio = alloc.ratio,
                                          npc_to_pick = npc_to_use, nsim = nsim)
   }
   if (is.null(sample_size)) ret.objects <- "required_SS" else ret.objects <- "power_value"

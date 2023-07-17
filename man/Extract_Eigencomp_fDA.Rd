@@ -17,7 +17,8 @@ Extract_Eigencomp_fDA(
   eval_SS = 5000,
   alloc.ratio = c(1, 1),
   fpca_method = c("fpca.sc", "face"),
-  nWgrid = 201,
+  work.grid = NULL,
+  nWgrid = ifelse(is.null(work.grid), 101, length(work.grid)),
   data.driven.scores = FALSE,
   mean_diff_add_args = list(),
   fpca_optns = list()
@@ -115,11 +116,13 @@ where we corrected those error in current version of \code{\link[refund:fpca.sc]
 the \code{\link[=fpca_sc]{fpca_sc()}} function for details. If \code{fpca_method == 'face'}, then
 the eigencomponents are estimated using \code{\link[face:face.sparse]{face::face.sparse()}} function.}
 
-\item{nWgrid}{The length of the working grid based in the domain of the function on which
-the eigenfunctions will be estimated. The actual working grid will be calculated using
-the \code{\link[gss:gauss.quad]{gss::gauss.quad()}} function (so that it facilitates the numerical integration of
-the eigenfunction with the mean function using gaussian quadrature rule)
-where the length of the grid will be nWgrid. Default value is 201.}
+\item{work.grid}{The working grid in the domain of the functions, where the eigenfunctions
+and other covariance components will be estimated. Default is NULL, then, a equidistant
+grid points of length \code{nWgrid} will be internally created to as the default \code{work.grid}.}
+
+\item{nWgrid}{The length of the \code{work.grid} in the domain of the function based on which
+the eigenfunctions will be estimated. Default value is 101. If \code{work.grid}
+is specified, then \code{nWgrid} must be null, and vice-versa.}
 
 \item{data.driven.scores}{Indicates whether the scores are estimated from the full data, WITHOUT
 assuming the mean function is unknown, rather the mean function is estimated using
@@ -145,9 +148,6 @@ A list with the elements listed below.
 \item \code{est_eigenval} - Estimated eigen values.
 \item \code{working.grid} - The grid points at which \code{mean_diff_vec} and
 \code{est_eigenfun} are evaluated.
-\item \code{weights} - The Gaussian quadrature weights obtained from \code{\link[gss:gauss.quad]{gss::gauss.quad()}}
-to compute the projection \eqn{\int [\mu_1(t) - \mu_2(t)]\phi_k(t) \,dt},
-for each \eqn{k=1,\dots, K}.
 \item \code{fpcCall} - The exact call of either of the \code{\link[=fpca_sc]{fpca_sc()}} or \code{\link[face:face.sparse]{face::face.sparse()}}
 used to compute the eigencomponents.
 \item \code{scores_var1} - Estimated covariance of the \code{shrinkage} scores for the treatment group.

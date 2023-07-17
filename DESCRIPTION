@@ -1,6 +1,5 @@
 Package: fPASS
-Title: Power and Sample Size Analysis for Projection-Based
-    Testing of Mean Difference under Repeated Measures Design
+Title: Power and Sample Size for Projection Test under Repeated Measures
 Version: 1.0.0
 Authors@R: c(
     person("Salil", "Koner", email = "salil.koner@duke.edu", role = c("aut", "cre", "cph"),
@@ -8,11 +7,11 @@ Authors@R: c(
     person("Sheng", "Luo", email = "sheng.luo@duke.edu", role = c("ctb", "fnd")))
 Description: Computes the power and sample size (PASS) required to test for the
     difference in the mean function between two groups under a repeatedly measured longitudinal 
-    or sparse functional design. See <https://salilkoner.github.io/assets/PASS_manuscript.pdf> 
+    or sparse functional design. See the manuscript by Koner and Luo (2023) <https://salilkoner.github.io/assets/PASS_manuscript.pdf> 
     for details of the PASS formula and computational details. The details of the testing
     procedure for univariate and multivariate response are presented in
-    Wang (2021) <doi:10.1214/21-EJS1802> and Koner and Luo (2023) 
-    <arXiv:2302.05612> respectively. 
+    Wang (2021) <https://doi.org/10.1214/21-EJS1802> and Koner and Luo (2023) 
+    <https://arxiv.org/abs/2302.05612> respectively. 
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

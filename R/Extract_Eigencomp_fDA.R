@@ -150,11 +150,12 @@
 #' where we corrected those error in current version of [refund::fpca.sc()]. Check out
 #' the [fPASS::fpca_sc()] function for details. If \code{fpca_method == 'face'}, then
 #' the eigencomponents are estimated using [face::face.sparse()] function.
-#' @param nWgrid The length of the working grid based in the domain of the function on which
-#'        the eigenfunctions will be estimated. The actual working grid will be calculated using
-#'        the [gss::gauss.quad()] function (so that it facilitates the numerical integration of
-#'        the eigenfunction with the mean function using gaussian quadrature rule)
-#'        where the length of the grid will be nWgrid. Default value is 201.
+#' @param work.grid The working grid in the domain of the functions, where the eigenfunctions
+#' and other covariance components will be estimated. Default is NULL, then, a equidistant
+#' grid points of length `nWgrid` will be internally created to as the default `work.grid`.
+#' @param nWgrid The length of the `work.grid` in the domain of the function based on which
+#'        the eigenfunctions will be estimated. Default value is 101. If `work.grid`
+#'        is specified, then `nWgrid` must be null, and vice-versa.
 #' @param data.driven.scores Indicates whether the scores are estimated from the full data, WITHOUT
 #'        assuming the mean function is unknown, rather the mean function is estimated using
 #'        [mgcv::gam()] function.
@@ -175,9 +176,6 @@
 #' \item \code{est_eigenval} - Estimated eigen values.
 #' \item \code{working.grid} - The grid points at which \code{mean_diff_vec} and
 #' \code{est_eigenfun} are evaluated.
-#' \item \code{weights} - The Gaussian quadrature weights obtained from [gss::gauss.quad()]
-#' to compute the projection \eqn{\int [\mu_1(t) - \mu_2(t)]\phi_k(t) \,dt},
-#' for each \eqn{k=1,\dots, K}.
 #' \item \code{fpcCall} - The exact call of either of the [fPASS::fpca_sc()] or [face::face.sparse()]
 #' used to compute the eigencomponents.
 #' \item \code{scores_var1} - Estimated covariance of the `shrinkage` scores for the treatment group.
@@ -254,7 +252,8 @@ Extract_Eigencomp_fDA  <- function(nobs_per_subj, obs.design, mean_diff_fnm,
                                    missing_percent = 0,
                                    eval_SS = 5000, alloc.ratio = c(1,1),
                                    fpca_method = c("fpca.sc", "face"),
-                                   nWgrid = 201,
+                                   work.grid = NULL,
+                                   nWgrid = ifelse(is.null(work.grid), 101, length(work.grid)),
                                    data.driven.scores = FALSE,
                                    mean_diff_add_args=list(),
                                    fpca_optns = list()){
@@ -281,7 +280,8 @@ Extract_Eigencomp_fDA  <- function(nobs_per_subj, obs.design, mean_diff_fnm,
   #*********************************************************************************************%
 
   testthat::expect_true(rlang::is_list(obs.design))
-  testthat::expect_true("design" %in% names(obs.design), info = "obs.design must be a named list with name 'design'")
+  testthat::expect_true("design" %in% names(obs.design),
+                        info = "obs.design must be a named list with name 'design'")
   design <- match.arg(obs.design$design, c("longitudinal", "functional"))
   if (design == "functional") {
     testthat::expect_true(rlang::is_integerish(nobs_per_subj, finite=TRUE),
@@ -316,9 +316,29 @@ Extract_Eigencomp_fDA  <- function(nobs_per_subj, obs.design, mean_diff_fnm,
     interval            <- c(0,1)
   }
 
-  ngrid          <- nWgrid
-  gauss.quad.pts <- gss::gauss.quad(ngrid,interval) # evaluation points
-  working.grid   <- gauss.quad.pts$pt
+  testthat::expect_false(is.null(nWgrid) & is.null(work.grid),
+                        info = "Both of work.grid and nWgrid specified NULL. At least one of them
+                                must be specified.")
+  if (!is.null(nWgrid)){
+    testthat::expect_true(rlang::is_integerish(nWgrid, n=1, finite=TRUE) & (nWgrid > 1),
+                          info = "nWgrid must be a positive integer greater than 1")
+  }
+  if(is.null(work.grid)){
+    work.grid    <- seq(interval[1], interval[2], length.out=nWgrid)
+  } else{
+    testthat::expect_true(rlang::is_double(work.grid, n=nWgrid, finite=TRUE) &
+                            !is.unsorted(work.grid),
+                          info = "work.grid must finite, sorted, and of length nWgrid (if not null)")
+    testthat::expect_true((min(work.grid) >= interval[1]) & (max(work.grid) <= interval[2]),
+                          info = paste0("the range of work.grid must
+                                        lie within the domain of function: ", interval[1], " and ", interval[2]))
+  }
+  working.grid     <- work.grid
+  ngrid            <- length(working.grid)
+
+  if (ngrid < 20){
+    warning("length of working grid is less than 20, consider increasing it to at least 20")
+  }
 
   #************************************************************%
   #*       Argument checking of mean function                  %
@@ -446,9 +466,8 @@ Extract_Eigencomp_fDA  <- function(nobs_per_subj, obs.design, mean_diff_fnm,
   }
   n.big             <- eval_SS # Edited by SK on Jan 17
   if (length(nobs_per_subj) > 1){
-    cat("nobs_per_subj is a vector: number of measurements
-         for the subjects will be taken randomly between",
-        range(nobs_per_subj)[1], "and", range(nobs_per_subj)[2], "\n")
+    message("number of measurements will be taken randomly between ",
+            range(nobs_per_subj)[1], " and ", range(nobs_per_subj)[2], "\n")
     m.orig         <- sample(nobs_per_subj, n.big, replace = TRUE)
   } else {
     m.orig         <- rep(nobs_per_subj, n.big)
@@ -566,8 +585,7 @@ Extract_Eigencomp_fDA  <- function(nobs_per_subj, obs.design, mean_diff_fnm,
     est_scores     <- fpcObj$scores
     est_eigenval   <- fpcObj$evalues
   }
-  weights          <- gauss.quad.pts$wt
-  ret.objects      <- c("mean_diff_vec", "est_eigenfun", "est_eigenval", "working.grid", "weights", "fpcCall")
+  ret.objects      <- c("mean_diff_vec", "est_eigenfun", "est_eigenval", "working.grid", "fpcCall")
   if(!is.null(est_scores)){
     scores_1       <- est_scores[g,  , drop=FALSE]
     scores_2       <- est_scores[!g, , drop=FALSE]
