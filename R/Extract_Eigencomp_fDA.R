@@ -522,10 +522,10 @@ Extract_Eigencomp_fDA  <- function(nobs_per_subj, obs.design, mean_diff_fnm,
                           both the names anything other than .id.")
     if (class(cor.str)[1] %in% c("corAR1", "corARMA", "corSymm")){
       sim.dat      <- data.frame(".id." = rep(1:n.new, m)) %>%
-                      mutate(!!covar_vars := unlist(visit)) %>% mutate(!!groups_vars := factor(.id.))
+                      dplyr::mutate(!!covar_vars := unlist(visit)) %>% dplyr::mutate(!!groups_vars := factor(.id.))
     } else{
       sim.dat      <- data.frame(".id." = rep(1:n.new, m)) %>%
-                      mutate(!!covar_vars := unlist(tvals)) %>% mutate(!!groups_vars := factor(.id.))
+                      dplyr::mutate(!!covar_vars := unlist(tvals)) %>% dplyr::mutate(!!groups_vars := factor(.id.))
     }
     cs1Exp         <- cor.str
     cs1Exp         <- nlme::Initialize(cs1Exp, sim.dat)
@@ -548,9 +548,9 @@ Extract_Eigencomp_fDA  <- function(nobs_per_subj, obs.design, mean_diff_fnm,
   if (data.driven.scores){
     gamDat         <- data.frame("subj"=rep(1:n.new, m), "y" = unlist(Ylist),
                                  "argvals" = unlist(tvals), "Group" = rep(g, m)) %>%
-                      mutate(trt.ind = as.numeric(Group))
+                      dplyr::mutate(trt.ind = as.numeric(Group))
     fit.m          <- mgcv::gam(y ~ s(argvals, k=12) + s(argvals, k=12, by=trt.ind), data=gamDat)
-    y_mean         <- gamDat$y - as.vector(mgcv::predict.gam(fit.m, newdata=gamDat %>% mutate(trt.ind = 0)))
+    y_mean         <- gamDat$y - as.vector(mgcv::predict.gam(fit.m, newdata=gamDat %>% dplyr::mutate(trt.ind = 0)))
     fuldat         <- gamDat %>% dplyr::select(subj, argvals) %>% dplyr::mutate(y = y_mean)
     fuldat_c       <- gamDat %>% dplyr::select(subj, argvals) %>% dplyr::mutate(y=fit.m$residuals)
   } else{

@@ -15,3 +15,7 @@ the interest of presenting an elaborate understanding of the package. An
 already built version of vignette (named as fPASS.html) is provided in
 the inst/doc folder. Please allow that time to build the vignette
 while running R CMD CHECK or R CMD BUILD. 
+
+* As per the comments made by cran admin, the title has been reduced to 65 characters,
+  and the references have been like with the proper format, and the messages have been 
+  displayed with message command, avoiding any cat or print command. 
