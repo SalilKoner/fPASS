@@ -15,10 +15,11 @@ knitr::opts_chunk$set(
 <!-- # pkgdown <img src="man/figures/logo.png" align="right" alt="" width="120" /> -->
 
 <!-- badges: start -->
+[![CRAN Status](https://www.r-pkg.org/badges/version/fPASS)](https://cran.r-project.org/package=fPASS){.pkgdown-release}
 [![R-CMD-check](https://github.com/SalilKoner/fPASS/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/SalilKoner/fPASS/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-# fPASS: Power and Sample Size Analysis for Projection-Based Testing of Mean Difference under Repeated Measures Design
+# fPASS: Power and Sample Size for Projection Test under Repeated Measures
 
 [Salil Koner](https://biostat.duke.edu/profile/salil-koner)
 
@@ -28,17 +29,17 @@ The details of the power and sample size formula and the relevant computational 
 
 ## Installation
 
-<!-- ::: .pkgdown-release -->
-<!-- ```{r, eval = FALSE} -->
-<!-- # Install released version from CRAN -->
-<!-- install.packages("pkgdown") -->
-<!-- ``` -->
-<!-- ::: -->
+::: .pkgdown-release
+```{r, eval = FALSE}
+# Install released version from CRAN
+install.packages("fPASS", dependencies = TRUE)
+```
+:::
 
 ::: .pkgdown-devel
 ```{r, eval = FALSE}
 # Install development version from GitHub
-devtools::install_github("SalilKoner/fPASS") # Vignettes takes about 20 minutes to run. 
+remotes::install_github("SalilKoner/fPASS") # Vignettes takes about 20 minutes to run. 
 ```
 :::
 

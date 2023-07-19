@@ -13,33 +13,35 @@ Description: Computes the power and sample size (PASS) required to test for the
     Wang (2021) <doi:10.1214/21-EJS1802> and Koner and Luo (2023) 
     <arXiv:2302.05612> respectively. 
 License: MIT + file LICENSE
-Encoding: UTF-8
-Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.3
+URL: https://github.com/SalilKoner/fPASS
+BugReports: https://github.com/SalilKoner/fPASS/issues
+Depends:
+  R (>= 4.2.0)
 Imports: 
-    dplyr,
-    purrr,
-    face,
-    magrittr,
-    MASS,
+    dplyr (>= 1.1.2),
+    purrr (>= 1.0.1),
+    face (>= 0.1.7),
+    magrittr (>= 2.0.3),
+    MASS (>= 7.3.60),
     Matrix,
-    nlme,
-    testthat, 
-    mgcv,
-    lifecycle,
-    expm,
-    gamm4,
-    gss,
-    rlang,
-    stringr,
+    nlme (>= 3.1.162),
+    testthat (>= 3.1.10), 
+    mgcv (>= 1.8.42),
+    lifecycle (>= 1.0.3),
+    expm (>= 0.999.7),
+    gamm4 (>= 0.2.6),
+    gss (>= 2.2.5),
+    rlang (>= 1.1.1),
+    stringr (>= 1.5.0),
     utils
 Suggests: 
     knitr,
     rmarkdown,
-    Hotelling,
-    refund,
-    foreach
+    Hotelling (>= 1.0.8),
+    refund (>= 0.1.31),
+    foreach (>= 1.5.2)
 VignetteBuilder: knitr
-URL: https://github.com/SalilKoner/fPASS
-BugReports: https://github.com/SalilKoner/fPASS/issues
 Config/testthat/edition: 3
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.3
